@@ -48,37 +48,32 @@ public class WellView extends JPanel implements Observer {
 			}
 		}
 
-		// Falling tetrimino
+		// Falling tetrimino and ghost
 		Tetrimino tetrimino = model.getFallingTetrimino();
 		Tetrimino.Shape shape = tetrimino.getShape();
 		int[][] pattern = Constants.tetriminoShapes.get(shape)[tetrimino.getRotation()];
 		BufferedImage blockImage = Constants.blockImages.get(shape);
 
+		Tetrimino ghost = new Tetrimino(tetrimino);
+		model.dropToFloor(ghost);
+
+		Composite originalComposite = g2d.getComposite();
+		Composite translucentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+
+
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (pattern[j][i] == 1) {
+					// Ghost tetrimino
+					g2d.setComposite(translucentComposite);
+					g2d.drawImage(Constants.blockBaseImage, (i + ghost.position.x) * model.scale, (j + ghost.position.y) * model.scale, model.scale, model.scale, null);
+
+					// Falling tetrimino
+					g2d.setComposite(originalComposite);
 					g2d.drawImage(blockImage, (i + tetrimino.position.x) * model.scale, (j + tetrimino.position.y) * model.scale, model.scale, model.scale, null);
 				}
 			}
 		}
-
-		// Ghost tetrimino
-		Tetrimino ghost = new Tetrimino(tetrimino);
-
-		model.dropToFloor(ghost);
-
-		Composite originalComposite = g2d.getComposite();
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (pattern[j][i] == 1) {
-					g2d.drawImage(Constants.blockBaseImage, (i + ghost.position.x) * model.scale, (j + ghost.position.y) * model.scale, model.scale, model.scale, null);
-				}
-			}
-		}
-
-		g2d.setComposite(originalComposite);
 	}
 
 	public void update(Observable o, Object arg) {
