@@ -7,6 +7,8 @@ import java.util.Observer;
 import javax.swing.JLabel;
 
 public class ScoreView extends JLabel implements Observer {
+	private static final String PREFIX = "SCORE: ";
+
 	private final GameModel model;
 
 	public ScoreView(GameModel model) {
@@ -16,13 +18,13 @@ public class ScoreView extends JLabel implements Observer {
 
 		setPreferredSize(new Dimension(model.scale * 6, model.scale * 3));
 
-		setText("SCORE: 0");
+		setText(PREFIX + 0);
 		setOpaque(true);
 	}
 
 	public void update(Observable o, Object arg) {
 		if (o == model) {
-			setText("SCORE: " + model.getScore());
+			setText(PREFIX + model.getScore());
 		}
 	}
 }
