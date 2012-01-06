@@ -12,9 +12,11 @@ public class GameModel extends Observable {
 	public final int scale;
 
 	private final Block[][] well;
+	private int score;
 	private Tetrimino fallingTetrimino;
 	private Tetrimino nextTetrimino;
-	private int score;
+	private Tetrimino heldTetrimino;
+	private boolean swapped;
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
@@ -24,6 +26,7 @@ public class GameModel extends Observable {
 		well = new Block[width][height];
 		score = 0;
 		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
+		swapped = false;
 
 		next();
 
@@ -44,6 +47,10 @@ public class GameModel extends Observable {
 
 	public Tetrimino getNextTetrimino() {
 		return nextTetrimino;
+	}
+
+	public Tetrimino getHeldTetrimino() {
+		return heldTetrimino;
 	}
 
 	public boolean clear() {
@@ -200,6 +207,30 @@ public class GameModel extends Observable {
 
 		fallingTetrimino = nextTetrimino;
 		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
+		swapped = false;
+
+		setChanged();
+		notifyObservers();
+	}
+
+	public void swap() {
+		if (swapped) return;
+
+		if (heldTetrimino != null) {
+			Tetrimino temporary = heldTetrimino;
+			heldTetrimino = fallingTetrimino;
+			fallingTetrimino = temporary;
+
+			fallingTetrimino.position.setLocation(width / 2 - 2, -1);
+			fallingTetrimino.setRotation(0);
+		} else {
+			heldTetrimino = fallingTetrimino;
+
+			fallingTetrimino = nextTetrimino;
+			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
+		}
+
+		swapped = true;
 
 		setChanged();
 		notifyObservers();

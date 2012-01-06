@@ -18,7 +18,7 @@ public class Tetris extends JPanel implements Runnable {
 
 		wellView = new WellView(model);
 		PreviewView previewView = new PreviewView(model);
-		TetriminoView holdView = new TetriminoView(model);
+		HoldView holdView = new HoldView(model);
 		ScoreView scoreView = new ScoreView(model);
 
 		controller = new GameController(model, wellView, previewView, holdView, scoreView);

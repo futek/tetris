@@ -51,6 +51,12 @@ public class Tetrimino {
 		return rotation;
 	}
 
+	public void setRotation(int rotation) {
+		if (rotation >= 0 && rotation < Constants.tetriminoShapes.get(shape).length) {
+			this.rotation = rotation;
+		}
+	}
+
 	public void rotate(boolean direction) {
 		if (direction) {
 			rotation = (rotation + 1) % Constants.tetriminoShapes.get(shape).length;

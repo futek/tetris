@@ -7,9 +7,10 @@ import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
 public class GameController {
-	public GameController(final GameModel model, WellView wellView, PreviewView previewView, TetriminoView holdView, ScoreView scoreView) {
+	public GameController(final GameModel model, WellView wellView, PreviewView previewView, HoldView holdView, ScoreView scoreView) {
 		model.addObserver(wellView);
 		model.addObserver(previewView);
+		model.addObserver(holdView);
 		model.addObserver(scoreView);
 
 		model.notifyObservers();
@@ -19,6 +20,7 @@ public class GameController {
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "rotate");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "swap");
 
 		wellView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -50,6 +52,12 @@ public class GameController {
 			public void actionPerformed(ActionEvent e) {
 				model.hardDrop();
 				Constants.sounds.get("drop").play();
+			}
+		});
+
+		wellView.getActionMap().put("swap", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				model.swap();
 			}
 		});
 	}
