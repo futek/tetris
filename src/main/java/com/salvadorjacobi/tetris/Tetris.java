@@ -47,12 +47,14 @@ public class Tetris extends JPanel {
 								)
 						)
 				);
+
+		this.setBackground(Color.DARK_GRAY);
 	}
 
 	public static final void main(String[] args) {
 		Tetris tetris = new Tetris(10, 20, 32);
 
-		JFrame frame = new JFrame("Tetris");
+		JFrame frame = new JFrame("Тетрис");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(tetris);
 		frame.pack();
