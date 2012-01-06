@@ -5,9 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 
-public class Tetris extends JPanel implements Runnable {
-	private boolean running;
-
+public class Tetris extends JPanel {
 	public final GameModel model;
 	public final GameController controller;
 
@@ -51,67 +49,15 @@ public class Tetris extends JPanel implements Runnable {
 				);
 	}
 
-	public void start() {
-		running = true;
-		(new Thread(this)).start();
-	}
-
-	public void stop() {
-		running = false;
-	}
-
-	// Not in use.. yet (or not)
-	public void run() {
-		long t = 0;
-		long dt = 10000000;
-		long maxFrameTime = 250000000;
-
-		long currentTime = System.nanoTime();
-		long accumulator = dt;
-
-		while (running) {
-			long newTime = System.nanoTime();
-			long frameTime = newTime - currentTime;
-
-			if (frameTime > maxFrameTime) {
-				frameTime = maxFrameTime;
-			}
-
-			currentTime = newTime;
-			accumulator += frameTime;
-
-			while (accumulator >= dt) {
-				update(t, dt);
-
-				t += dt;
-				accumulator -= dt;
-			}
-
-			double alpha = accumulator / dt;
-
-			render(alpha);
-		}
-	}
-
-	public void update(long t, long dt) {
-		//model.update();
-	}
-
-	public void render(double alpha) {
-		wellView.repaint();
-	}
-
 	public static final void main(String[] args) {
-		Tetris stupid = new Tetris(10, 20, 32);
+		Tetris tetris = new Tetris(10, 20, 32);
 
 		JFrame frame = new JFrame("Tetris");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(stupid);
+		frame.setContentPane(tetris);
 		frame.pack();
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-
-		//frame.run();
 	}
 }
