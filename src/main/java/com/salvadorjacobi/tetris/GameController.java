@@ -16,9 +16,9 @@ public class GameController {
 
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
-		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up");
-		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "down");
-		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "space");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "rotate");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
 
 		wellView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -32,19 +32,19 @@ public class GameController {
 			}
 		});
 
-		wellView.getActionMap().put("up", new AbstractAction() {
+		wellView.getActionMap().put("rotate", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.rotate(true);
 			}
 		});
 
-		wellView.getActionMap().put("down", new AbstractAction() {
+		wellView.getActionMap().put("softdrop", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.softDrop();
 			}
 		});
 
-		wellView.getActionMap().put("space", new AbstractAction() {
+		wellView.getActionMap().put("harddrop", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.hardDrop();
 
