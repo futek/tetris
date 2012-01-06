@@ -69,7 +69,7 @@ public class WellView extends JPanel implements Observer {
 		model.dropToFloor(ghost);
 
 		Composite originalComposite = g2d.getComposite();
-		Composite translucentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+		Composite translucentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f);
 
 
 		for (int i = 0; i < 4; i++) {
@@ -77,7 +77,7 @@ public class WellView extends JPanel implements Observer {
 				if (pattern[j][i] == 1) {
 					// Ghost tetrimino
 					g2d.setComposite(translucentComposite);
-					g2d.drawImage(Constants.blockBaseImage, (i + ghost.position.x) * model.scale, (j + ghost.position.y) * model.scale, model.scale, model.scale, null);
+					g2d.drawImage(blockImage, (i + ghost.position.x) * model.scale, (j + ghost.position.y) * model.scale, model.scale, model.scale, null);
 
 					// Falling tetrimino
 					g2d.setComposite(originalComposite);
