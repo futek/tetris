@@ -35,6 +35,17 @@ public class WellView extends JPanel implements Observer {
 		g2d.setBackground(Color.BLACK);
 		g2d.clearRect(0, 0, getWidth(), getHeight());
 
+		// Grid
+		g.setColor(Color.decode("#1a1a1a"));
+
+		for (int i = 1; i < width; i++) {
+			g2d.drawLine(model.scale * i, 0, model.scale * i, height * model.scale);
+		}
+
+		for (int i = 1; i < height; i++) {
+			g2d.drawLine(0, model.scale * i, width * model.scale, model.scale * i);
+		}
+
 		// Well
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
