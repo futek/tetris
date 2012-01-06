@@ -128,23 +128,25 @@ public class GameModel extends Observable {
 		return true;
 	}
 
-	public void rotate(boolean direction) {
+	public boolean rotate(boolean direction) {
 		fallingTetrimino.rotate(direction);
 
 		if (isOutOfBounds(fallingTetrimino)) {
 			fallingTetrimino.rotate(!direction);
-			return;
+			return false;
 		}
 
 		if (isOverlapping(fallingTetrimino)) {
 			fallingTetrimino.rotate(!direction);
-			return;
+			return false;
 		}
 
 		clear();
 
 		setChanged();
 		notifyObservers();
+
+		return true;
 	}
 
 	public void softDrop() {

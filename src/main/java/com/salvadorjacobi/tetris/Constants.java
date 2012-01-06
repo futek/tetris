@@ -1,5 +1,7 @@
 package com.salvadorjacobi.tetris;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -180,5 +182,15 @@ public class Constants {
 		}
 
 		blockImages = Collections.unmodifiableMap(map);
+	}
+
+	public static final Map<String, AudioClip> sounds;
+	static {
+		Map<String, AudioClip> map = new HashMap<String, AudioClip>();
+
+		map.put("rotate", Applet.newAudioClip(Tetris.class.getResource("/rotate.wav")));
+		map.put("drop", Applet.newAudioClip(Tetris.class.getResource("/drop.wav")));
+
+		sounds = Collections.unmodifiableMap(map);
 	}
 }

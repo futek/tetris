@@ -34,7 +34,9 @@ public class GameController {
 
 		wellView.getActionMap().put("rotate", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.rotate(true);
+				if (model.rotate(true)) {
+					Constants.sounds.get("rotate").play();
+				}
 			}
 		});
 
@@ -47,7 +49,7 @@ public class GameController {
 		wellView.getActionMap().put("harddrop", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.hardDrop();
-
+				Constants.sounds.get("drop").play();
 			}
 		});
 	}
