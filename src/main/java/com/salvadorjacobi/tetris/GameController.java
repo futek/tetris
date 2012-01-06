@@ -1,6 +1,7 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
@@ -20,7 +21,7 @@ public class GameController {
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "rotate");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
-		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "swap");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT, InputEvent.SHIFT_DOWN_MASK, false), "swap");
 
 		wellView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
