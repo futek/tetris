@@ -17,7 +17,6 @@ public class TetriminoView extends JPanel {
 	public TetriminoView(GameModel model) {
 		this.model = model;
 
-		shape = Tetrimino.Shape.randomShape();
 		rotation = 0;
 
 		Dimension dimension = new Dimension(model.scale * 6, model.scale * 6);

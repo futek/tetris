@@ -13,6 +13,7 @@ public class GameModel extends Observable {
 
 	private final Block[][] well;
 	private Tetrimino fallingTetrimino;
+	private Tetrimino nextTetrimino;
 	private int score;
 
 	public GameModel(int width, int height, int scale) {
@@ -22,10 +23,11 @@ public class GameModel extends Observable {
 
 		well = new Block[width][height];
 		score = 0;
-		fallingTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
+		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
+
+		next();
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public Block getBlock(int x, int y) {
@@ -38,6 +40,10 @@ public class GameModel extends Observable {
 
 	public Tetrimino getFallingTetrimino() {
 		return fallingTetrimino;
+	}
+
+	public Tetrimino getNextTetrimino() {
+		return nextTetrimino;
 	}
 
 	public boolean clear() {
@@ -169,22 +175,29 @@ public class GameModel extends Observable {
 
 		score += lines * HARDDROP_MULTIPLIER;
 
-		// Embed tetrimino blocks into well
-		Tetrimino.Shape shape = fallingTetrimino.getShape();
-		int rotation = fallingTetrimino.getRotation();
-		int[][] pattern = Constants.tetriminoShapes.get(shape)[rotation];
+		next();
+	}
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (pattern[j][i] == 1) {
-					well[i + fallingTetrimino.position.x][j + fallingTetrimino.position.y] = new Block(shape);
+	public void next() {
+		if (fallingTetrimino != null) {
+			// Embed falling tetrimino blocks into well
+			Tetrimino.Shape shape = fallingTetrimino.getShape();
+			int rotation = fallingTetrimino.getRotation();
+			int[][] pattern = Constants.tetriminoShapes.get(shape)[rotation];
+
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					if (pattern[j][i] == 1) {
+						well[i + fallingTetrimino.position.x][j + fallingTetrimino.position.y] = new Block(shape);
+					}
 				}
 			}
+
+			clear();
 		}
 
-		clear();
-
-		fallingTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
+		fallingTetrimino = nextTetrimino;
+		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
 
 		setChanged();
 		notifyObservers();

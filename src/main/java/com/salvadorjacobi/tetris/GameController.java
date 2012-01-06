@@ -7,9 +7,12 @@ import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
 public class GameController {
-	public GameController(final GameModel model, WellView wellView, TetriminoView previewView, TetriminoView holdView, ScoreView scoreView) {
+	public GameController(final GameModel model, WellView wellView, PreviewView previewView, TetriminoView holdView, ScoreView scoreView) {
 		model.addObserver(wellView);
+		model.addObserver(previewView);
 		model.addObserver(scoreView);
+
+		model.notifyObservers();
 
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
