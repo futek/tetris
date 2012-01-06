@@ -13,13 +13,15 @@ public class TetriminoView extends JPanel {
 
 	private Tetrimino.Shape shape;
 	private final int rotation;
+	private final int scale;
 
 	public TetriminoView(GameModel model) {
 		this.model = model;
 
 		rotation = 0;
+		scale = model.scale / 2;
 
-		Dimension dimension = new Dimension(model.scale * 6, model.scale * 6);
+		Dimension dimension = new Dimension(scale * 6, scale * 6);
 
 		setMinimumSize(dimension);
 		setMaximumSize(dimension);
@@ -46,7 +48,7 @@ public class TetriminoView extends JPanel {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (pattern[j][i] == 1) {
-					g2d.drawImage(blockImage, (i + 1) * model.scale, (j + 1) * model.scale, model.scale, model.scale, null);
+					g2d.drawImage(blockImage, (i + 1) * scale, (j + 1) * scale, scale, scale, null);
 				}
 			}
 		}
