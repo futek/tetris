@@ -1,5 +1,7 @@
 package com.salvadorjacobi.tetris;
 
+import java.awt.Color;
+
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
