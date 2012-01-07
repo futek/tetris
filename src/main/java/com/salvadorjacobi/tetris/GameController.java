@@ -1,7 +1,6 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -10,7 +9,7 @@ import javax.swing.KeyStroke;
 
 public class GameController {
 	@SuppressWarnings("serial")
-	public GameController(final GameModel model, WellView wellView, PreviewView previewView, HoldView holdView, ScoreView scoreView) {
+	public GameController(final GameModel model, final WellView wellView, PreviewView previewView, HoldView holdView, ScoreView scoreView) {
 		//playList(); //baggrundsmusik
 		
 		model.addObserver(wellView);
@@ -25,16 +24,8 @@ public class GameController {
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "rotate");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
-		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "pause");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "reset");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT, InputEvent.SHIFT_DOWN_MASK, false), "swap");
-		
-
-		wellView.getActionMap().put("pause", new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				model.pause(true);
-			}
-		});
 		
 		
 		wellView.getActionMap().put("left", new AbstractAction() {

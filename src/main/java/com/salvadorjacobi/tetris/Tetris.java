@@ -1,7 +1,6 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 
+@SuppressWarnings("serial")
 public class Tetris extends JPanel implements ActionListener{
 	public static GameModel model;
 	public final GameController controller;
@@ -69,10 +69,6 @@ public class Tetris extends JPanel implements ActionListener{
 		this.setBackground(Color.DARK_GRAY);
 	}
 	
-	
-	public static JButton getButton() {
-		return resetButton;
-	}
 
 	public static final void main(String[] args) {
 		Tetris tetris = new Tetris(10, 20, 32);
@@ -85,7 +81,7 @@ public class Tetris extends JPanel implements ActionListener{
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
-	public void reload(JButton button) {
+	public static void reload(JButton button) {
 		button.setEnabled(false);
 		button.setEnabled(true);
 	}
@@ -93,19 +89,22 @@ public class Tetris extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if("new game".equals(e.getActionCommand())) {
 			model.reset();
-			//wellView.setEnabled(false);
+			pauseButton.setEnabled(false);
 			reload(resetButton);
 		}
 		if("pause".equals(e.getActionCommand())) {
 			if(wellView.isEnabled()) {
-				wellView.setEnabled(false);		
+				resetButton.setEnabled(false);
+				wellView.setEnabled(false);
 				pauseButton.setText("resume");
 			}else{
+				resetButton.setEnabled(true);
 				wellView.setEnabled(true);
 				pauseButton.setText("pause");
+				
 			}
-			reload(pauseButton);
 		}
+		reload(pauseButton);
 		
 	}
 }

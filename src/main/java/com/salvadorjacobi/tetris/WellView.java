@@ -12,6 +12,7 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class WellView extends JPanel implements Observer {
 	private final GameModel model;
 	private final int width;
@@ -24,7 +25,17 @@ public class WellView extends JPanel implements Observer {
 
 		setPreferredSize(new Dimension(width * model.scale, height * model.scale));
 	}
+	
 
+	public void seeThis() {
+		if(Tetris.pauseButton.getText().equals("resume")) {
+			System.out.print("hej");
+		}else {
+			
+			System.out.print("hejsaa!");
+		}
+	}
+	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -54,8 +65,12 @@ public class WellView extends JPanel implements Observer {
 				if (block == null) {
 					continue;
 				}
-
-				BufferedImage blockImage = Constants.blockImages.get(block.getParentShape());
+				BufferedImage blockImage;
+				if(Tetris.pauseButton.getText().equals("resume")) {
+					blockImage = Constants.blockBaseImage;
+				}else {
+					blockImage = Constants.blockImages.get(block.getParentShape());
+				}
 				g2d.drawImage(blockImage, i * model.scale, j * model.scale, model.scale, model.scale, null);
 			}
 		}
@@ -91,6 +106,11 @@ public class WellView extends JPanel implements Observer {
 			g2d.fillRect(100, 275, 110, 40);
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("GAME OVER", 120, 300);
+		}else if(Tetris.pauseButton.getText().equals("resume")) {
+			g2d.setColor(Color.BLUE);
+			g2d.fillRect(100, 275, 120, 40);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("GAME PAUSED", 118, 300);
 		}
 		
 		
