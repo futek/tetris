@@ -133,21 +133,46 @@ public class GameModel extends Observable {
 	}
 
 	public boolean rotate(boolean direction) {
+		int rotation = fallingTetrimino.getRotation();
+		Point originalPosition = fallingTetrimino.position.getLocation();
+
+		int nextRotation;
+		int[][] kickTranslations;
+
 		fallingTetrimino.rotate(direction);
 
-		if (isOutOfBounds(fallingTetrimino)) {
-			fallingTetrimino.rotate(!direction);
-			return false;
+		nextRotation = fallingTetrimino.getRotation();
+
+		int[][][] offsetData = Constants.offsetData.get(fallingTetrimino.getShape());
+		int offsetCount = offsetData[rotation].length;
+
+		kickTranslations = new int[offsetCount][];
+
+		for (int i = 0; i < offsetCount; i++) {
+			int[] offset = offsetData[rotation][i];
+			int[] nextOffset = offsetData[nextRotation][i];
+
+			kickTranslations[i] = new int[] {offset[0] - nextOffset[0], offset[1] - nextOffset[1]};
 		}
 
-		if (isOverlapping(fallingTetrimino)) {
-			fallingTetrimino.rotate(!direction);
-			return false;
+		for (int i = 0; i < kickTranslations.length; i++) {
+			int dx = kickTranslations[i][0];
+			int dy = kickTranslations[i][1];
+
+			fallingTetrimino.position.move(originalPosition.x + dx, originalPosition.y + dy);
+
+			if (isOutOfBounds(fallingTetrimino) || isOverlapping(fallingTetrimino)) {
+				continue;
+			}
+
+			setChanged();
+
+			return true;
 		}
 
-		setChanged();
+		fallingTetrimino.position = originalPosition;
 
-		return true;
+		return false;
 	}
 
 	public void softDrop() {
