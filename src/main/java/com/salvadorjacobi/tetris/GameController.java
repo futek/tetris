@@ -26,12 +26,20 @@ public class GameController {
 		wellView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.move(-1, 0);
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 
 		wellView.getActionMap().put("right", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.move(1, 0);
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 
@@ -40,12 +48,20 @@ public class GameController {
 				if (model.rotate(true)) {
 					Constants.sounds.get("rotate").play();
 				}
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 
 		wellView.getActionMap().put("softdrop", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.softDrop();
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 
@@ -53,12 +69,20 @@ public class GameController {
 			public void actionPerformed(ActionEvent e) {
 				model.hardDrop();
 				Constants.sounds.get("drop").play();
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 
 		wellView.getActionMap().put("swap", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.swap();
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 	}

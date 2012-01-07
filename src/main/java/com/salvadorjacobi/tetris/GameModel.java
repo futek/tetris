@@ -130,7 +130,6 @@ public class GameModel extends Observable {
 		clear();
 
 		setChanged();
-		notifyObservers();
 
 		return true;
 	}
@@ -151,7 +150,6 @@ public class GameModel extends Observable {
 		clear();
 
 		setChanged();
-		notifyObservers();
 
 		return true;
 	}
@@ -162,7 +160,6 @@ public class GameModel extends Observable {
 		}
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public int dropToFloor(Tetrimino tetrimino) {
@@ -210,7 +207,6 @@ public class GameModel extends Observable {
 		swapped = false;
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public void swap() {
@@ -233,7 +229,6 @@ public class GameModel extends Observable {
 		swapped = true;
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public boolean isOverlapping(Tetrimino tetrimino) {
