@@ -24,6 +24,7 @@ public class GameController {
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT, InputEvent.SHIFT_DOWN_MASK, false), "swap");
+		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "reset");
 
 		matrixView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -107,6 +108,10 @@ public class GameController {
 		matrixView.getActionMap().put("reset", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.reset();
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
 			}
 		});
 	}

@@ -12,25 +12,20 @@ public class GameModel extends Observable {
 	public final int height;
 	public final int scale;
 
-	private final Block[][] matrix;
+	private Block[][] matrix;
 	private int score;
 	private Tetrimino fallingTetrimino;
 	private Tetrimino nextTetrimino;
 	private Tetrimino heldTetrimino;
 	private boolean swapped;
+	private boolean gameOver;
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
 		this.height = height + SKY_HEIGHT;
 		this.scale = scale;
 
-		matrix = new Block[this.width][this.height];
-		score = 0;
-		swapped = false;
-
-		next();
-
-		setChanged();
+		reset();
 	}
 
 	public Block getBlock(int x, int y) {
@@ -238,6 +233,10 @@ public class GameModel extends Observable {
 		tetrimino.setRotation(0);
 
 		fallingTetrimino = tetrimino;
+
+		if (isOverlapping(fallingTetrimino)) {
+			gameOver = true;
+		}
 	}
 
 	public int drop(Tetrimino tetrimino) {
@@ -266,12 +265,25 @@ public class GameModel extends Observable {
 		int size = pattern.length;
 		int radius = (size - 1) / 2;
 
+		boolean potentialGameOver = true;
+
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {
-					matrix[position.x - radius + i][position.y - radius + j] = new Block(shape);
+					int x = position.x - radius + i;
+					int y = position.y - radius + j;
+
+					matrix[x][y] = new Block(shape);
+
+					if (y >= GameModel.SKY_HEIGHT) {
+						potentialGameOver = false;
+					}
 				}
 			}
+		}
+
+		if (potentialGameOver) {
+			gameOver = true;
 		}
 	}
 
@@ -325,49 +337,21 @@ public class GameModel extends Observable {
 		return false;
 	}
 
-	public boolean noMove(int x, int y) {
-		Point previousPosition = (Point) fallingTetrimino.position.clone();
-
-		fallingTetrimino.position.translate(x, y);
-
-		if (isOutOfBounds(fallingTetrimino)) {
-			fallingTetrimino.position.setLocation(previousPosition);
-			return true;
-		}
-
-		if (isOverlapping(fallingTetrimino)) {
-			fallingTetrimino.position.setLocation(previousPosition);
-			return true;
-		}
-
-		fallingTetrimino.position.setLocation(previousPosition);
-
-
-		return false;
-	}
-
-	public boolean gameOver() {
-		if(noMove(0,1) && noMove(1,0) && noMove(-1,0) && noMove(0,-1)) {
-			System.out.println("sand");
-			swapped = true;
-			return true;
-		}
-		System.out.println("falsk");
-		return false;
+	public boolean isGameOver() {
+		return gameOver;
 	}
 
 	public void reset() {
+		matrix = new Block[width][height];
+		score = 0;
 		heldTetrimino = null;
 		fallingTetrimino = null;
 		swapped = false;
-
-		well = new Block[width][height];
-		score = 0;
+		gameOver = false;
 
 		next();
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public boolean pause(boolean i) {

@@ -120,19 +120,20 @@ public class MatrixView extends JPanel implements Observer {
 				}
 			}
 		}
-		if(model.gameOver() == true) {
+
+		if (model.isGameOver() == true) {
 			g2d.setColor(Color.RED);
 			g2d.fillRect(100, 275, 110, 40);
+
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("GAME OVER", 120, 300);
-		}else if(Tetris.pauseButton.getText().equals("resume")) {
+		} else if(Tetris.pauseButton.getText().equals("resume")) {
 			g2d.setColor(Color.BLUE);
 			g2d.fillRect(100, 275, 120, 40);
+
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("GAME PAUSED", 118, 300);
 		}
-
-
 	}
 
 	public void update(Observable o, Object arg) {
