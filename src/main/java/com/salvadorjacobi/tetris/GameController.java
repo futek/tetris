@@ -9,6 +9,8 @@ import javax.swing.KeyStroke;
 
 public class GameController {
 	public GameController(final GameModel model, WellView wellView, PreviewView previewView, HoldView holdView, ScoreView scoreView) {
+		playList(); //baggrundsmusik
+		
 		model.addObserver(wellView);
 		model.addObserver(previewView);
 		model.addObserver(holdView);
@@ -21,8 +23,18 @@ public class GameController {
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "rotate");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "pause");
+		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "reset");
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT, InputEvent.SHIFT_DOWN_MASK, false), "swap");
+		
 
+		/*wellView.getActionMap().put("pause", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				model.pause();
+			}
+		});*/
+		
+		
 		wellView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				model.move(-1, 0);
@@ -61,5 +73,19 @@ public class GameController {
 				model.swap();
 			}
 		});
+		
+		wellView.getActionMap().put("reset", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				model.reset();
+			}
+		});
+	}
+	public void actionPerformed(ActionEvent e) {
+		if ("disable".equals(e.getActionCommand())) {
+            Tetris.getButton().setEnabled(false);
+		}
+	}
+	public void playList() {
+		Constants.sounds.get("rickroll").loop();
 	}
 }

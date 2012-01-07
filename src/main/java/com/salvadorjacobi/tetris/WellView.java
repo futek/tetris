@@ -30,7 +30,8 @@ public class WellView extends JPanel implements Observer {
 		super.paintComponent(g);
 
 		Graphics2D g2d = (Graphics2D) g;
-
+		
+		
 		// Background
 		g2d.setBackground(Color.BLACK);
 		g2d.clearRect(0, 0, getWidth(), getHeight());
@@ -85,6 +86,13 @@ public class WellView extends JPanel implements Observer {
 				}
 			}
 		}
+		if(model.gameOver() == true) {
+			g2d.fillRect(100, 275, 110, 40);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("GAME OVER", 120, 300);
+		}
+		
+		
 	}
 
 	public void update(Observable o, Object arg) {
