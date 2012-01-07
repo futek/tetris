@@ -83,6 +83,10 @@ public class MatrixView extends JPanel implements Observer {
 		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
 		BufferedImage blockImage = Constants.blockImages.get(shape);
 
+		if (model.isPaused()) {
+			blockImage = Constants.blockBaseImage;
+		}
+
 		// Ghost tetrimino
 		Tetrimino ghost = new Tetrimino(tetrimino);
 		model.drop(ghost);
@@ -96,8 +100,10 @@ public class MatrixView extends JPanel implements Observer {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {
-					int x = (i + ghostPosition.x - radius) * model.scale;
-					int y = (j + ghostPosition.y - radius - GameModel.SKY_HEIGHT) * model.scale;
+					int x, y;
+
+					x = (i + ghostPosition.x - radius) * model.scale;
+					y = (j + ghostPosition.y - radius - GameModel.SKY_HEIGHT) * model.scale;
 
 					g2d.setComposite(alphaComposite);
 					g2d.drawImage(blockImage, x, y, model.scale, model.scale, null);
