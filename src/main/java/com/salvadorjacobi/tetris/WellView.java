@@ -87,6 +87,7 @@ public class WellView extends JPanel implements Observer {
 			}
 		}
 		if(model.gameOver() == true) {
+			g2d.setColor(Color.RED);
 			g2d.fillRect(100, 275, 110, 40);
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("GAME OVER", 120, 300);

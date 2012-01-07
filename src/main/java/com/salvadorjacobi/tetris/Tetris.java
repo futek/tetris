@@ -2,6 +2,7 @@ package com.salvadorjacobi.tetris;
 
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.GroupLayout;
@@ -10,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 
-public class Tetris extends JPanel {
+public class Tetris extends JPanel implements ActionListener{
 	public static GameModel model;
 	public final GameController controller;
 
@@ -26,7 +27,8 @@ public class Tetris extends JPanel {
 		HoldView holdView = new HoldView(model);
 		ScoreView scoreView = new ScoreView(model);
 		
-		resetButton.setActionCommand("disable");
+		resetButton.setActionCommand("new game");
+		resetButton.addActionListener(this);
 
 		controller = new GameController(model, wellView, previewView, holdView, scoreView);
 
@@ -77,5 +79,13 @@ public class Tetris extends JPanel {
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+	}
+
+
+	public void actionPerformed(ActionEvent e) {
+		if("new game".equals(e.getActionCommand())) {
+			model.reset();
+		}
+		
 	}
 }

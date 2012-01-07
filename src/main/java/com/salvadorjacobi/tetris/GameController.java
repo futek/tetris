@@ -1,6 +1,7 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -8,8 +9,9 @@ import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
 public class GameController {
+	@SuppressWarnings("serial")
 	public GameController(final GameModel model, WellView wellView, PreviewView previewView, HoldView holdView, ScoreView scoreView) {
-		playList(); //baggrundsmusik
+		//playList(); //baggrundsmusik
 		
 		model.addObserver(wellView);
 		model.addObserver(previewView);
@@ -80,11 +82,7 @@ public class GameController {
 			}
 		});
 	}
-	public void actionPerformed(ActionEvent e) {
-		if ("disable".equals(e.getActionCommand())) {
-            Tetris.getButton().setEnabled(false);
-		}
-	}
+	
 	public void playList() {
 		Constants.sounds.get("rickroll").loop();
 	}
