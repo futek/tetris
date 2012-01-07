@@ -127,10 +127,7 @@ public class GameModel extends Observable {
 			return false;
 		}
 
-		clear();
-
 		setChanged();
-		notifyObservers();
 
 		return true;
 	}
@@ -148,10 +145,7 @@ public class GameModel extends Observable {
 			return false;
 		}
 
-		clear();
-
 		setChanged();
-		notifyObservers();
 
 		return true;
 	}
@@ -162,7 +156,6 @@ public class GameModel extends Observable {
 		}
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public int dropToFloor(Tetrimino tetrimino) {
@@ -202,7 +195,9 @@ public class GameModel extends Observable {
 				}
 			}
 
-			clear();
+			if (clear()) {
+				Constants.sounds.get("clear").play();
+			}
 		}
 
 		fallingTetrimino = nextTetrimino;
@@ -210,7 +205,6 @@ public class GameModel extends Observable {
 		swapped = false;
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public void swap() {
@@ -233,7 +227,6 @@ public class GameModel extends Observable {
 		swapped = true;
 
 		setChanged();
-		notifyObservers();
 	}
 
 	public boolean isOverlapping(Tetrimino tetrimino) {
