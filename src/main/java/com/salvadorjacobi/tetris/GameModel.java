@@ -195,7 +195,9 @@ public class GameModel extends Observable {
 				}
 			}
 
-			clear();
+			if (clear()) {
+				Constants.sounds.get("clear").play();
+			}
 		}
 
 		fallingTetrimino = nextTetrimino;

@@ -220,6 +220,7 @@ public class Constants {
 
 		map.put("rotate", Applet.newAudioClip(Tetris.class.getResource("/rotate.wav")));
 		map.put("drop", Applet.newAudioClip(Tetris.class.getResource("/drop.wav")));
+		map.put("clear", Applet.newAudioClip(Tetris.class.getResource("/clear.wav")));
 
 		sounds = Collections.unmodifiableMap(map);
 	}
