@@ -19,6 +19,7 @@ public class GameModel extends Observable {
 	private Tetrimino heldTetrimino;
 	private boolean swapped;
 	private boolean gameOver;
+	private boolean paused;
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
@@ -341,6 +342,18 @@ public class GameModel extends Observable {
 		return gameOver;
 	}
 
+	public boolean isPaused() {
+		return paused;
+	}
+
+	public void pause() {
+		paused = true;
+	}
+
+	public void resume() {
+		paused = false;
+	}
+
 	public void reset() {
 		matrix = new Block[width][height];
 		score = 0;
@@ -352,9 +365,5 @@ public class GameModel extends Observable {
 		next();
 
 		setChanged();
-	}
-
-	public boolean pause(boolean i) {
-		return i;
 	}
 }

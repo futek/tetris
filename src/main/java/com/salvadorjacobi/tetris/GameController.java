@@ -2,14 +2,27 @@ package com.salvadorjacobi.tetris;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.KeyStroke;
 
-public class GameController {
-	public GameController(final GameModel model, MatrixView matrixView, PreviewView previewView, HoldView holdView, ScoreView scoreView) {
+public class GameController implements ActionListener {
+	public final GameModel model;
+
+	private final MatrixView matrixView;
+	private final JButton resetButton;
+	private final JButton pauseButton;
+
+	public GameController(final GameModel model, MatrixView matrixView, PreviewView previewView, HoldView holdView, ScoreView scoreView, JButton resetButton, JButton pauseButton) {
+		this.model = model;
+		this.matrixView = matrixView;
+		this.resetButton = resetButton;
+		this.pauseButton = pauseButton;
+
 		model.addObserver(matrixView);
 		model.addObserver(previewView);
 		model.addObserver(holdView);
@@ -118,5 +131,26 @@ public class GameController {
 
 	public void playList() {
 		Constants.sounds.get("rickroll").loop();
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		if ("restart".equals(e.getActionCommand())) {
+			model.reset();
+			model.notifyObservers();
+		} else if ("pause".equals(e.getActionCommand())) {
+			if (model.isPaused()) {
+				model.resume();
+
+				matrixView.setEnabled(true);
+				pauseButton.setText("PAUSE");
+			} else {
+				model.pause();
+
+				matrixView.setEnabled(false);
+				pauseButton.setText("RESUME");
+			}
+
+			model.notifyObservers();
+		}
 	}
 }

@@ -34,16 +34,6 @@ public class MatrixView extends JPanel implements Observer {
 		alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f);
 	}
 
-
-	public void seeThis() {
-		if(Tetris.pauseButton.getText().equals("resume")) {
-			System.out.print("hej");
-		}else {
-
-			System.out.print("hejsaa!");
-		}
-	}
-
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -76,7 +66,7 @@ public class MatrixView extends JPanel implements Observer {
 
 				BufferedImage blockImage = Constants.blockImages.get(block.getParentShape());
 
-				if (Tetris.pauseButton.getText().equals("resume")) {
+				if (model.isPaused()) {
 					blockImage = Constants.blockBaseImage;
 				}
 
@@ -121,13 +111,13 @@ public class MatrixView extends JPanel implements Observer {
 			}
 		}
 
-		if (model.isGameOver() == true) {
+		if (model.isGameOver()) {
 			g2d.setColor(Color.RED);
 			g2d.fillRect(100, 275, 110, 40);
 
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("GAME OVER", 120, 300);
-		} else if(Tetris.pauseButton.getText().equals("resume")) {
+		} else if (model.isPaused()) {
 			g2d.setColor(Color.BLUE);
 			g2d.fillRect(100, 275, 120, 40);
 
