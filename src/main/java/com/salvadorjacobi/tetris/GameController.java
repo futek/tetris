@@ -30,11 +30,11 @@ public class GameController {
 		wellView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT, InputEvent.SHIFT_DOWN_MASK, false), "swap");
 		
 
-		/*wellView.getActionMap().put("pause", new AbstractAction() {
+		wellView.getActionMap().put("pause", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.pause();
+				model.pause(true);
 			}
-		});*/
+		});
 		
 		
 		wellView.getActionMap().put("left", new AbstractAction() {

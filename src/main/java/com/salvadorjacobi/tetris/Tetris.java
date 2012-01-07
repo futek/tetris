@@ -17,7 +17,8 @@ public class Tetris extends JPanel implements ActionListener{
 
 	public final WellView wellView;
 	
-	public static JButton resetButton = new JButton("reset");
+	public static JButton resetButton = new JButton("new game");
+	public static JButton pauseButton = new JButton("pause");
 
 	public Tetris(int width, int height, int scale) {
 		model = new GameModel(width, height, scale);
@@ -29,6 +30,8 @@ public class Tetris extends JPanel implements ActionListener{
 		
 		resetButton.setActionCommand("new game");
 		resetButton.addActionListener(this);
+		pauseButton.setActionCommand("pause");
+		pauseButton.addActionListener(this);
 
 		controller = new GameController(model, wellView, previewView, holdView, scoreView);
 
@@ -44,6 +47,7 @@ public class Tetris extends JPanel implements ActionListener{
 						.addComponent(previewView)
 						.addComponent(scoreView)
 						.addComponent(resetButton)
+						.addComponent(pauseButton)
 						.addComponent(holdView)
 						)
 				);
@@ -55,6 +59,7 @@ public class Tetris extends JPanel implements ActionListener{
 								.addComponent(previewView)
 								.addComponent(scoreView)
 								.addComponent(resetButton)
+								.addComponent(pauseButton)
 								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(holdView)
 								)
@@ -80,11 +85,26 @@ public class Tetris extends JPanel implements ActionListener{
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
-
+	public void reload(JButton button) {
+		button.setEnabled(false);
+		button.setEnabled(true);
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		if("new game".equals(e.getActionCommand())) {
 			model.reset();
+			//wellView.setEnabled(false);
+			reload(resetButton);
+		}
+		if("pause".equals(e.getActionCommand())) {
+			if(wellView.isEnabled()) {
+				wellView.setEnabled(false);		
+				pauseButton.setText("resume");
+			}else{
+				wellView.setEnabled(true);
+				pauseButton.setText("pause");
+			}
+			reload(pauseButton);
 		}
 		
 	}

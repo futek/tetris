@@ -318,8 +318,7 @@ public class GameModel extends Observable {
 		notifyObservers();
 	}
 	
-	/*public boolean pause() {
-		
-		return true;
-	}*/
+	public boolean pause(boolean i) {
+		return i;
+	}
 }
