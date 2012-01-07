@@ -103,5 +103,15 @@ public class GameController {
 				}
 			}
 		});
+
+		matrixView.getActionMap().put("reset", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				model.reset();
+			}
+		});
+	}
+
+	public void playList() {
+		Constants.sounds.get("rickroll").loop();
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Observer;
 import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
 
+@SuppressWarnings("serial")
 public class HoldView extends TetriminoView implements Observer {
 	private final GameModel model;
 

@@ -34,11 +34,22 @@ public class MatrixView extends JPanel implements Observer {
 		alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f);
 	}
 
+
+	public void seeThis() {
+		if(Tetris.pauseButton.getText().equals("resume")) {
+			System.out.print("hej");
+		}else {
+
+			System.out.print("hejsaa!");
+		}
+	}
+
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
 		Graphics2D g2d = (Graphics2D) g;
+
 
 		// Background
 		g2d.setBackground(Color.BLACK);
@@ -64,6 +75,11 @@ public class MatrixView extends JPanel implements Observer {
 				}
 
 				BufferedImage blockImage = Constants.blockImages.get(block.getParentShape());
+
+				if (Tetris.pauseButton.getText().equals("resume")) {
+					blockImage = Constants.blockBaseImage;
+				}
+
 				g2d.drawImage(blockImage, i * model.scale, (j - GameModel.SKY_HEIGHT) * model.scale, model.scale, model.scale, null);
 			}
 		}
@@ -104,6 +120,19 @@ public class MatrixView extends JPanel implements Observer {
 				}
 			}
 		}
+		if(model.gameOver() == true) {
+			g2d.setColor(Color.RED);
+			g2d.fillRect(100, 275, 110, 40);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("GAME OVER", 120, 300);
+		}else if(Tetris.pauseButton.getText().equals("resume")) {
+			g2d.setColor(Color.BLUE);
+			g2d.fillRect(100, 275, 120, 40);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("GAME PAUSED", 118, 300);
+		}
+
+
 	}
 
 	public void update(Observable o, Object arg) {

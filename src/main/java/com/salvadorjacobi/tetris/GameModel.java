@@ -324,4 +324,53 @@ public class GameModel extends Observable {
 
 		return false;
 	}
+
+	public boolean noMove(int x, int y) {
+		Point previousPosition = (Point) fallingTetrimino.position.clone();
+
+		fallingTetrimino.position.translate(x, y);
+
+		if (isOutOfBounds(fallingTetrimino)) {
+			fallingTetrimino.position.setLocation(previousPosition);
+			return true;
+		}
+
+		if (isOverlapping(fallingTetrimino)) {
+			fallingTetrimino.position.setLocation(previousPosition);
+			return true;
+		}
+
+		fallingTetrimino.position.setLocation(previousPosition);
+
+
+		return false;
+	}
+
+	public boolean gameOver() {
+		if(noMove(0,1) && noMove(1,0) && noMove(-1,0) && noMove(0,-1)) {
+			System.out.println("sand");
+			swapped = true;
+			return true;
+		}
+		System.out.println("falsk");
+		return false;
+	}
+
+	public void reset() {
+		heldTetrimino = null;
+		fallingTetrimino = null;
+		swapped = false;
+
+		well = new Block[width][height];
+		score = 0;
+
+		next();
+
+		setChanged();
+		notifyObservers();
+	}
+
+	public boolean pause(boolean i) {
+		return i;
+	}
 }
