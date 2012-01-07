@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.Observable;
 
 public class GameModel extends Observable {
+	public static final int SKY_HEIGHT = 2;
 	public static final int SOFTDROP_MULTIPLIER = 1;
 	public static final int HARDDROP_MULTIPLIER = 2;
 
@@ -11,7 +12,7 @@ public class GameModel extends Observable {
 	public final int height;
 	public final int scale;
 
-	private final Block[][] well;
+	private final Block[][] matrix;
 	private int score;
 	private Tetrimino fallingTetrimino;
 	private Tetrimino nextTetrimino;
@@ -20,12 +21,11 @@ public class GameModel extends Observable {
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
-		this.height = height;
+		this.height = height + SKY_HEIGHT;
 		this.scale = scale;
 
-		well = new Block[width][height];
+		matrix = new Block[this.width][this.height];
 		score = 0;
-		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
 		swapped = false;
 
 		next();
@@ -34,7 +34,7 @@ public class GameModel extends Observable {
 	}
 
 	public Block getBlock(int x, int y) {
-		return well[x][y];
+		return matrix[x][y];
 	}
 
 	public int getScore() {
@@ -51,6 +51,125 @@ public class GameModel extends Observable {
 
 	public Tetrimino getHeldTetrimino() {
 		return heldTetrimino;
+	}
+
+	public void next() {
+		if (fallingTetrimino != null) {
+			embed(fallingTetrimino);
+
+			if (clear()) {
+				Constants.sounds.get("clear").play();
+			}
+		}
+
+		if (nextTetrimino == null) {
+			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
+		}
+
+		spawn(nextTetrimino);
+
+		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
+		swapped = false;
+
+		setChanged();
+	}
+
+	public boolean translate(Point delta) {
+		Point originalPosition = fallingTetrimino.getPosition();
+
+		fallingTetrimino.translate(delta);
+
+		if (isOutOfBounds(fallingTetrimino, false) || isOverlapping(fallingTetrimino)) {
+			fallingTetrimino.setPosition(originalPosition);
+			return false;
+		}
+
+		setChanged();
+
+		return true;
+	}
+
+	public boolean rotate(boolean direction) {
+		int rotation = fallingTetrimino.getRotation();
+		Point originalPosition = fallingTetrimino.getPosition();
+		int nextRotation;
+		int[][] kickTranslations;
+
+		fallingTetrimino.rotate(direction);
+
+		nextRotation = fallingTetrimino.getRotation();
+
+		int[][][] offsetData = Constants.offsetData.get(fallingTetrimino.getShape());
+		int offsetCount = offsetData[rotation].length;
+
+		kickTranslations = new int[offsetCount][];
+
+		for (int i = 0; i < offsetCount; i++) {
+			int[] offset = offsetData[rotation][i];
+			int[] nextOffset = offsetData[nextRotation][i];
+
+			kickTranslations[i] = new int[] {offset[0] - nextOffset[0], offset[1] - nextOffset[1]};
+		}
+
+		for (int i = 0; i < kickTranslations.length; i++) {
+			int dx = kickTranslations[i][0];
+			int dy = kickTranslations[i][1];
+
+			fallingTetrimino.translate(new Point(dx, dy));
+
+			if (isOutOfBounds(fallingTetrimino, false) || isOverlapping(fallingTetrimino)) {
+				fallingTetrimino.setPosition(originalPosition);
+
+				continue;
+			}
+
+			setChanged();
+
+			return true;
+		}
+
+		fallingTetrimino.rotate(!direction);
+
+		return false;
+	}
+
+	public void softDrop() {
+		Point down = new Point(0, 1);
+
+		if (translate(down)) {
+			score += SOFTDROP_MULTIPLIER;
+		}
+
+		setChanged();
+	}
+
+	public void hardDrop() {
+		int lines = drop(fallingTetrimino);
+
+		score += lines * HARDDROP_MULTIPLIER;
+
+		next();
+	}
+
+	public void swap() {
+		if (swapped) return;
+
+		if (heldTetrimino != null) {
+			Tetrimino temporary = heldTetrimino;
+			heldTetrimino = fallingTetrimino;
+
+			spawn(temporary);
+		} else {
+			heldTetrimino = fallingTetrimino;
+
+			spawn(nextTetrimino);
+
+			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
+		}
+
+		swapped = true;
+
+		setChanged();
 	}
 
 	public boolean clear() {
@@ -75,13 +194,13 @@ public class GameModel extends Observable {
 			// Move blocks down
 			for (int k = j; k > 0; k--) {
 				for (int i = 0; i < width; i++) {
-					well[i][k] = well[i][k - 1];
+					matrix[i][k] = matrix[i][k - 1];
 				}
 			}
 
 			// Clear top row
 			for (int i = 0; i < width; i++) {
-				well[i][0] = null;
+				matrix[i][0] = null;
 			}
 		}
 
@@ -112,157 +231,66 @@ public class GameModel extends Observable {
 		return true;
 	}
 
-	public boolean move(int x, int y) {
-		Point previousPosition = (Point) fallingTetrimino.position.clone();
+	public void spawn(Tetrimino tetrimino) {
+		Point startPosition = new Point(width / 2 - 1, 1);
 
-		fallingTetrimino.position.translate(x, y);
+		tetrimino.setPosition(startPosition);
+		tetrimino.setRotation(0);
 
-		if (isOutOfBounds(fallingTetrimino)) {
-			fallingTetrimino.position.setLocation(previousPosition);
-			return false;
-		}
-
-		if (isOverlapping(fallingTetrimino)) {
-			fallingTetrimino.position.setLocation(previousPosition);
-			return false;
-		}
-
-		setChanged();
-
-		return true;
+		fallingTetrimino = tetrimino;
 	}
 
-	public boolean rotate(boolean direction) {
-		int rotation = fallingTetrimino.getRotation();
-		Point originalPosition = fallingTetrimino.position.getLocation();
-
-		int nextRotation;
-		int[][] kickTranslations;
-
-		fallingTetrimino.rotate(direction);
-
-		nextRotation = fallingTetrimino.getRotation();
-
-		int[][][] offsetData = Constants.offsetData.get(fallingTetrimino.getShape());
-		int offsetCount = offsetData[rotation].length;
-
-		kickTranslations = new int[offsetCount][];
-
-		for (int i = 0; i < offsetCount; i++) {
-			int[] offset = offsetData[rotation][i];
-			int[] nextOffset = offsetData[nextRotation][i];
-
-			kickTranslations[i] = new int[] {offset[0] - nextOffset[0], offset[1] - nextOffset[1]};
-		}
-
-		for (int i = 0; i < kickTranslations.length; i++) {
-			int dx = kickTranslations[i][0];
-			int dy = kickTranslations[i][1];
-
-			fallingTetrimino.position.move(originalPosition.x + dx, originalPosition.y + dy);
-
-			if (isOutOfBounds(fallingTetrimino) || isOverlapping(fallingTetrimino)) {
-				continue;
-			}
-
-			setChanged();
-
-			return true;
-		}
-
-		fallingTetrimino.position = originalPosition;
-
-		return false;
-	}
-
-	public void softDrop() {
-		if (move(0, 1)) {
-			score += SOFTDROP_MULTIPLIER;
-		}
-
-		setChanged();
-	}
-
-	public int dropToFloor(Tetrimino tetrimino) {
+	public int drop(Tetrimino tetrimino) {
 		int lines = 0;
 
-		while (!isOutOfBounds(tetrimino) && !isOverlapping(tetrimino)) {
-			tetrimino.position.translate(0, 1);
+		Point down = new Point(0, 1);
+		Point up = new Point(0, -1);
+
+		while (!isOutOfBounds(tetrimino, false) && !isOverlapping(tetrimino)) {
+			tetrimino.translate(down);
 
 			lines++;
 		}
 
-		tetrimino.position.translate(0, -1);
+		tetrimino.translate(up);
 
 		return lines - 1;
 	}
 
-	public void hardDrop() {
-		int lines = dropToFloor(fallingTetrimino);
+	public void embed(Tetrimino tetrimino) {
+		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = tetrimino.getPosition();
+		int rotation = tetrimino.getRotation();
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
 
-		score += lines * HARDDROP_MULTIPLIER;
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
 
-		next();
-	}
-
-	public void next() {
-		if (fallingTetrimino != null) {
-			// Embed falling tetrimino blocks into well
-			Tetrimino.Shape shape = fallingTetrimino.getShape();
-			int rotation = fallingTetrimino.getRotation();
-			int[][] pattern = Constants.tetriminoShapes.get(shape)[rotation];
-
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 4; j++) {
-					if (pattern[j][i] == 1) {
-						well[i + fallingTetrimino.position.x][j + fallingTetrimino.position.y] = new Block(shape);
-					}
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (pattern[j][i] == 1) {
+					matrix[position.x - radius + i][position.y - radius + j] = new Block(shape);
 				}
 			}
-
-			if (clear()) {
-				Constants.sounds.get("clear").play();
-			}
 		}
-
-		fallingTetrimino = nextTetrimino;
-		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
-		swapped = false;
-
-		setChanged();
-	}
-
-	public void swap() {
-		if (swapped) return;
-
-		if (heldTetrimino != null) {
-			Tetrimino temporary = heldTetrimino;
-			heldTetrimino = fallingTetrimino;
-			fallingTetrimino = temporary;
-
-			fallingTetrimino.position.setLocation(width / 2 - 2, -1);
-			fallingTetrimino.setRotation(0);
-		} else {
-			heldTetrimino = fallingTetrimino;
-
-			fallingTetrimino = nextTetrimino;
-			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(width / 2 - 2, -1));
-		}
-
-		swapped = true;
-
-		setChanged();
 	}
 
 	public boolean isOverlapping(Tetrimino tetrimino) {
 		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = tetrimino.getPosition();
 		int rotation = tetrimino.getRotation();
-		int[][] pattern = Constants.tetriminoShapes.get(shape)[rotation];
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {
-					if (well[i + tetrimino.position.x][j + tetrimino.position.y] != null)
+					int x = position.x - radius + i;
+					int y = position.y - radius + j;
+
+					if (matrix[x][y] != null)
 						return true;
 				}
 			}
@@ -271,19 +299,25 @@ public class GameModel extends Observable {
 		return false;
 	}
 
-	public boolean isOutOfBounds(Tetrimino tetrimino) {
+	public boolean isOutOfBounds(Tetrimino tetrimino, boolean cutAtSkyline) {
 		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = tetrimino.getPosition();
 		int rotation = tetrimino.getRotation();
-		int[][] pattern = Constants.tetriminoShapes.get(shape)[rotation];
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				int x = i + tetrimino.position.x;
-				int y = j + tetrimino.position.y;
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
 
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {
-					if (x < 0 || x >= width || y < 0 || y >= height)
-						return true;
+					int x = i + position.x - radius;
+					int y = j + position.y - radius;
+
+					if (pattern[j][i] == 1) {
+						if (x < 0 || x >= width || y < (cutAtSkyline ? SKY_HEIGHT : 0) || y >= height)
+							return true;
+					}
 				}
 			}
 		}

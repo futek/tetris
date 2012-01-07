@@ -6,23 +6,32 @@ import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JPanel;
 
-public class WellView extends JPanel implements Observer {
+public class MatrixView extends JPanel implements Observer {
 	private final GameModel model;
 	private final int width;
 	private final int height;
 
-	public WellView(GameModel model) {
+	private final Composite alphaComposite;
+
+	public MatrixView(GameModel model) {
 		this.model = model;
 		this.width = model.width;
 		this.height = model.height;
 
-		setPreferredSize(new Dimension(width * model.scale, height * model.scale));
+		Dimension dimension = new Dimension(this.width * model.scale, (this.height - GameModel.SKY_HEIGHT) * model.scale);
+
+		setMinimumSize(dimension);
+		setMaximumSize(dimension);
+		setPreferredSize(dimension);
+
+		alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f);
 	}
 
 	@Override
@@ -46,7 +55,7 @@ public class WellView extends JPanel implements Observer {
 			g2d.drawLine(0, model.scale * i, width * model.scale, model.scale * i);
 		}
 
-		// Well
+		// Matrix
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				Block block = model.getBlock(i, j);
@@ -55,33 +64,43 @@ public class WellView extends JPanel implements Observer {
 				}
 
 				BufferedImage blockImage = Constants.blockImages.get(block.getParentShape());
-				g2d.drawImage(blockImage, i * model.scale, j * model.scale, model.scale, model.scale, null);
+				g2d.drawImage(blockImage, i * model.scale, (j - GameModel.SKY_HEIGHT) * model.scale, model.scale, model.scale, null);
 			}
 		}
 
-		// Falling tetrimino and ghost
+		// Falling tetrimino
 		Tetrimino tetrimino = model.getFallingTetrimino();
 		Tetrimino.Shape shape = tetrimino.getShape();
-		int[][] pattern = Constants.tetriminoShapes.get(shape)[tetrimino.getRotation()];
+		Point position = tetrimino.getPosition();
+		int rotation = tetrimino.getRotation();
+
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
 		BufferedImage blockImage = Constants.blockImages.get(shape);
 
+		// Ghost tetrimino
 		Tetrimino ghost = new Tetrimino(tetrimino);
-		model.dropToFloor(ghost);
+		model.drop(ghost);
+		Point ghostPosition = ghost.getPosition();
 
 		Composite originalComposite = g2d.getComposite();
-		Composite translucentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f);
 
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {
-					// Ghost tetrimino
-					g2d.setComposite(translucentComposite);
-					g2d.drawImage(blockImage, (i + ghost.position.x) * model.scale, (j + ghost.position.y) * model.scale, model.scale, model.scale, null);
+					int x = (i + ghostPosition.x - radius) * model.scale;
+					int y = (j + ghostPosition.y - radius - GameModel.SKY_HEIGHT) * model.scale;
 
-					// Falling tetrimino
+					g2d.setComposite(alphaComposite);
+					g2d.drawImage(blockImage, x, y, model.scale, model.scale, null);
+
+					x = (i + position.x - radius) * model.scale;
+					y = (j + position.y - radius - GameModel.SKY_HEIGHT) * model.scale;
+
 					g2d.setComposite(originalComposite);
-					g2d.drawImage(blockImage, (i + tetrimino.position.x) * model.scale, (j + tetrimino.position.y) * model.scale, model.scale, model.scale, null);
+					g2d.drawImage(blockImage, x, y, model.scale, model.scale, null);
 				}
 			}
 		}

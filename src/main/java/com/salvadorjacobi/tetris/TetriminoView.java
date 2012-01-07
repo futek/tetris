@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -11,17 +12,15 @@ import javax.swing.JPanel;
 public class TetriminoView extends JPanel {
 	private final GameModel model;
 
-	private Tetrimino.Shape shape;
-	private final int rotation;
+	private Tetrimino tetrimino;
 	private final int scale;
 
 	public TetriminoView(GameModel model) {
 		this.model = model;
 
-		rotation = 0;
 		scale = model.scale / 2;
 
-		Dimension dimension = new Dimension(scale * 6, scale * 6);
+		Dimension dimension = new Dimension(scale * 5, scale * 5);
 
 		setMinimumSize(dimension);
 		setMaximumSize(dimension);
@@ -39,22 +38,45 @@ public class TetriminoView extends JPanel {
 		g2d.clearRect(0, 0, getWidth(), getHeight());
 
 		// Return if shape is null
-		if (shape == null) return;
+		if (tetrimino == null) return;
 
 		// Tetrimino
-		int[][] pattern = Constants.tetriminoShapes.get(shape)[rotation];
+		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = new Point(0, 0);
+		int[][] pattern = Constants.trueRotation.get(shape)[0];
 		BufferedImage blockImage = Constants.blockImages.get(shape);
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
+		int size = pattern.length;
+
+		double dx = 0;
+		double dy = 0;
+
+		switch (shape) {
+			case I:
+				dx -= 0.5;
+				break;
+			case O:
+				dx += 0.5;
+				dy += 1.5;
+				break;
+			default:
+				dx += 1.0;
+				dy += 1.5;
+		}
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {
-					g2d.drawImage(blockImage, (i + 1) * scale, (j + 1) * scale, scale, scale, null);
+					int x = (int) ((position.x + i + dx) * scale);
+					int y = (int) ((position.y + j + dy) * scale);
+
+					g2d.drawImage(blockImage, x, y, scale, scale, null);
 				}
 			}
 		}
 	}
 
-	public void setShape(Tetrimino.Shape shape) {
-		this.shape = shape;
+	public void setTetrimino(Tetrimino tetrimino) {
+		this.tetrimino = tetrimino;
 	}
 }

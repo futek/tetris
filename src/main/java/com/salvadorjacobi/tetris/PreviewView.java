@@ -28,7 +28,7 @@ public class PreviewView extends TetriminoView implements Observer {
 
 	public void update(Observable o, Object arg) {
 		if (o == model) {
-			setShape(model.getNextTetrimino().getShape());
+			setTetrimino(model.getNextTetrimino());
 			repaint();
 		}
 	}

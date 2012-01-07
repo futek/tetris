@@ -19,7 +19,7 @@ public class ScoreView extends JLabel implements Observer {
 		this.model = model;
 		scale = model.scale / 2;
 
-		setPreferredSize(new Dimension(scale * 6, scale * 3));
+		setPreferredSize(new Dimension(scale * 5, scale * 3));
 
 		setBackground(Color.DARK_GRAY);
 		setForeground(Color.WHITE);

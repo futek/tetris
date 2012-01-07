@@ -11,17 +11,17 @@ public class Tetris extends JPanel {
 	public final GameModel model;
 	public final GameController controller;
 
-	public final WellView wellView;
+	public final MatrixView matrixView;
 
 	public Tetris(int width, int height, int scale) {
 		model = new GameModel(width, height, scale);
 
-		wellView = new WellView(model);
+		matrixView = new MatrixView(model);
 		PreviewView previewView = new PreviewView(model);
 		HoldView holdView = new HoldView(model);
 		ScoreView scoreView = new ScoreView(model);
 
-		controller = new GameController(model, wellView, previewView, holdView, scoreView);
+		controller = new GameController(model, matrixView, previewView, holdView, scoreView);
 
 		GroupLayout layout = new GroupLayout(this);
 		this.setLayout(layout);
@@ -30,7 +30,7 @@ public class Tetris extends JPanel {
 		layout.setAutoCreateContainerGaps(true);
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addComponent(wellView)
+				.addComponent(matrixView)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addComponent(previewView)
 						.addComponent(scoreView)
@@ -40,7 +40,7 @@ public class Tetris extends JPanel {
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(wellView)
+						.addComponent(matrixView)
 						.addGroup(layout.createSequentialGroup()
 								.addComponent(previewView)
 								.addComponent(scoreView)

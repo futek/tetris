@@ -32,7 +32,7 @@ public class HoldView extends TetriminoView implements Observer {
 
 			if (heldTetrimino == null) return;
 
-			setShape(model.getHeldTetrimino().getShape());
+			setTetrimino(model.getHeldTetrimino());
 			repaint();
 		}
 	}
