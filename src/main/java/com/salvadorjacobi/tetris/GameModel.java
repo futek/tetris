@@ -127,8 +127,6 @@ public class GameModel extends Observable {
 			return false;
 		}
 
-		clear();
-
 		setChanged();
 
 		return true;
@@ -146,8 +144,6 @@ public class GameModel extends Observable {
 			fallingTetrimino.rotate(!direction);
 			return false;
 		}
-
-		clear();
 
 		setChanged();
 
