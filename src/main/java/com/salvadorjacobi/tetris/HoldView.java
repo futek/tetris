@@ -7,7 +7,6 @@ import java.util.Observer;
 import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
 
-@SuppressWarnings("serial")
 public class HoldView extends TetriminoView implements Observer {
 	private final GameModel model;
 
@@ -29,10 +28,6 @@ public class HoldView extends TetriminoView implements Observer {
 
 	public void update(Observable o, Object arg) {
 		if (o == model) {
-			Tetrimino heldTetrimino = model.getHeldTetrimino();
-
-			if (heldTetrimino == null) return;
-
 			setTetrimino(model.getHeldTetrimino());
 			repaint();
 		}
