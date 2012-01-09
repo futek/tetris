@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 
 public class GameController implements ActionListener {
 	public final GameModel model;
@@ -16,6 +17,8 @@ public class GameController implements ActionListener {
 	private final MatrixView matrixView;
 	private final JButton resetButton;
 	private final JButton pauseButton;
+
+	private final Timer timer;
 
 	public GameController(final GameModel model, MatrixView matrixView, PreviewView previewView, HoldView holdView, ScoreView scoreView, JButton resetButton, JButton pauseButton) {
 		this.model = model;
@@ -29,6 +32,10 @@ public class GameController implements ActionListener {
 		model.addObserver(scoreView);
 
 		model.notifyObservers();
+
+		// Move to model
+		timer = new Timer(model.getTickInterval(), this);
+		timer.start();
 
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
@@ -134,7 +141,13 @@ public class GameController implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if ("restart".equals(e.getActionCommand())) {
+		if (e.getSource() == timer) {
+			// Move to model
+			model.tick();
+			model.notifyObservers();
+
+			timer.setDelay(model.getTickInterval());
+		} else if ("restart".equals(e.getActionCommand())) {
 			model.reset();
 			model.notifyObservers();
 		} else if ("pause".equals(e.getActionCommand())) {

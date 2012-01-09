@@ -57,6 +57,22 @@ public class GameModel extends Observable {
 		return level;
 	}
 
+	public int getTickInterval() {
+		return (int) (1200 * Math.exp(-0.2 * level));
+	}
+
+	public void tick() {
+		if (gameOver || paused) return;
+
+		Point down = new Point(0, 1);
+
+		if (!translate(down)) {
+			next();
+		}
+
+		setChanged();
+	}
+
 	public void populateBag() {
 		while (!bag.empty()) {
 			bag.pop();
