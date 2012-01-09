@@ -22,6 +22,8 @@ public class GameModel extends Observable {
 	private boolean gameOver;
 	private boolean paused;
 	private final Stack<Tetrimino> bag = new Stack<Tetrimino>();
+	private int linesClearedPerLevel;
+	private int level;
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
@@ -49,6 +51,10 @@ public class GameModel extends Observable {
 
 	public Tetrimino getHeldTetrimino() {
 		return heldTetrimino;
+	}
+
+	public int getLevel() {
+		return level;
 	}
 
 	public void populateBag() {
@@ -220,6 +226,7 @@ public class GameModel extends Observable {
 		}
 
 		int points = 0;
+		linesClearedPerLevel += lines;
 
 		switch (lines) {
 			case 0:
@@ -240,10 +247,21 @@ public class GameModel extends Observable {
 
 		score += points;
 
+		int threshold = levelThreshold();
+
+		while (linesClearedPerLevel >= threshold) {
+			level++;
+			linesClearedPerLevel -= threshold;
+		}
+
 		setChanged();
 		notifyObservers();
 
 		return true;
+	}
+
+	public int levelThreshold() {
+		return (int) (10 + 5 * Math.log(level));
 	}
 
 	public void spawn(Tetrimino tetrimino) {
@@ -380,6 +398,8 @@ public class GameModel extends Observable {
 		fallingTetrimino = null;
 		swapped = false;
 		gameOver = false;
+		linesClearedPerLevel = 0;
+		level = 1;
 
 		populateBag();
 		next();
