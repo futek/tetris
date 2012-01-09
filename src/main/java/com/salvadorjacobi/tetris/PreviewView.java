@@ -21,7 +21,7 @@ public class PreviewView extends TetriminoView implements Observer {
 						"NEXT",
 						TitledBorder.CENTER,
 						TitledBorder.TOP,
-						null,
+						Constants.baseFont,
 						Color.WHITE)
 				);
 	}

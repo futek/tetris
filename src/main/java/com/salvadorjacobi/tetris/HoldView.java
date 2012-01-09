@@ -21,7 +21,7 @@ public class HoldView extends TetriminoView implements Observer {
 						"HOLD",
 						TitledBorder.CENTER,
 						TitledBorder.TOP,
-						null,
+						Constants.baseFont,
 						Color.WHITE)
 				);
 	}

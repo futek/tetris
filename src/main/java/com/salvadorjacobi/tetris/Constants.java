@@ -3,9 +3,11 @@ package com.salvadorjacobi.tetris;
 import java.applet.Applet;
 import java.applet.AudioClip;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -257,5 +259,20 @@ public class Constants {
 		map.put("denied", Applet.newAudioClip(Tetris.class.getResource("/denied.wav")));
 
 		sounds = Collections.unmodifiableMap(map);
+	}
+
+	public static final Font baseFont;
+	static {
+		Font font = null;
+		InputStream stream = Tetris.class.getResourceAsStream("/5x5_pixel.ttf");
+
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(16f);
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+
+		baseFont = font;
 	}
 }

@@ -24,7 +24,10 @@ public class ScoreView extends JLabel implements Observer {
 		setBackground(Color.DARK_GRAY);
 		setForeground(Color.WHITE);
 
+		setFont(Constants.baseFont);
+
 		setText(String.format(FORMAT, 0));
+
 		setOpaque(true);
 	}
 
