@@ -23,8 +23,11 @@ public class GameModel extends Observable {
 	private boolean paused;
 	private final Stack<Tetrimino> bag = new Stack<Tetrimino>();
 	private int comboCounter;
+	private int linesCleared;
 	private int linesClearedPerLevel;
 	private int level;
+	private boolean tSpinKick;
+	private boolean lastMoveRotation;
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
@@ -71,6 +74,8 @@ public class GameModel extends Observable {
 			next();
 		}
 
+		lastMoveRotation = false;
+
 		setChanged();
 	}
 
@@ -90,6 +95,8 @@ public class GameModel extends Observable {
 		if (fallingTetrimino != null) {
 			embed(fallingTetrimino);
 
+			boolean threeCorners = (fallingTetrimino.getShape() == Tetrimino.Shape.T && cornerSum(fallingTetrimino) >= 3);
+
 			if (clear()) {
 				comboCounter++;
 				score += (comboCounter - 1) * 50 * level;
@@ -99,13 +106,28 @@ public class GameModel extends Observable {
 				comboCounter = 0;
 			}
 
-		if (nextTetrimino == null) {
-			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
+			if (threeCorners && lastMoveRotation) {
+				switch (linesCleared) {
+					case 0:
+						score += (tSpinKick ? 100 : 0) * level;
+						break;
+					case 1:
+						score += (tSpinKick ? 200 : 100) * level;
+						break;
+					case 2:
+						score += (tSpinKick ? 1200 : 300) * level;
+						break;
+					case 3:
+						score += (tSpinKick ? 1600 : 500) * level;
+						break;
+				}
+			}
 		}
 
 		spawn(bag.pop());
 
 		swapped = false;
+		tSpinKick = false;
 
 		if (bag.empty()) {
 			populateBag();
@@ -130,6 +152,7 @@ public class GameModel extends Observable {
 	}
 
 	public boolean rotate(boolean direction) {
+		Tetrimino.Shape shape = fallingTetrimino.getShape();
 		int rotation = fallingTetrimino.getRotation();
 		Point originalPosition = fallingTetrimino.getPosition();
 		int nextRotation;
@@ -139,7 +162,7 @@ public class GameModel extends Observable {
 
 		nextRotation = fallingTetrimino.getRotation();
 
-		int[][][] offsetData = Constants.offsetData.get(fallingTetrimino.getShape());
+		int[][][] offsetData = Constants.offsetData.get(shape);
 		int offsetCount = offsetData[rotation].length;
 
 		kickTranslations = new int[offsetCount][];
@@ -162,6 +185,13 @@ public class GameModel extends Observable {
 
 				continue;
 			}
+
+			// Detect kick
+			if (shape == Tetrimino.Shape.T) {
+				tSpinKick = (i != 0);
+			}
+
+			lastMoveRotation = true;
 
 			setChanged();
 
@@ -188,7 +218,19 @@ public class GameModel extends Observable {
 
 		score += lines * HARDDROP_MULTIPLIER;
 
+		if (lines > 0) {
+			lastMoveRotation = false;
+		}
+
 		next();
+	}
+
+	public boolean shift(boolean left) {
+		Point offset = new Point((left ? -1 : 1), 0);
+
+		lastMoveRotation = false;
+
+		return translate(offset);
 	}
 
 	public void swap() {
@@ -247,6 +289,7 @@ public class GameModel extends Observable {
 		}
 
 		int points = 0;
+		linesCleared = lines;
 		linesClearedPerLevel += lines;
 
 		switch (lines) {
@@ -346,6 +389,26 @@ public class GameModel extends Observable {
 		}
 	}
 
+	public int cornerSum(Tetrimino tetrimino) {
+		int sum = 0;
+		Point position = tetrimino.getPosition();
+
+		for (int i = -1; i <= 1; i += 2) {
+			for (int j = -1; j <= 1; j += 2) {
+				int x = position.x + i;
+				int y = position.y + j;
+
+				if (x < 0 || x >= width || y < 0 || y >= height) {
+					sum++;
+				} else if (getBlock(x, y) != null) {
+					sum++;
+				}
+			}
+		}
+
+		return sum;
+	}
+
 	public boolean isOverlapping(Tetrimino tetrimino) {
 		Tetrimino.Shape shape = tetrimino.getShape();
 		Point position = tetrimino.getPosition();
@@ -422,6 +485,8 @@ public class GameModel extends Observable {
 		comboCounter = 0;
 		linesClearedPerLevel = 0;
 		level = 1;
+		tSpinKick = false;
+		lastMoveRotation = false;
 
 		populateBag();
 		next();

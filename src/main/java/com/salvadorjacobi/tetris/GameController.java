@@ -1,6 +1,5 @@
 package com.salvadorjacobi.tetris;
 
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -48,7 +47,7 @@ public class GameController implements ActionListener {
 
 		matrixView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.translate(new Point(-1, 0));
+				model.shift(true);
 
 				if (model.hasChanged()) {
 					model.notifyObservers();
@@ -58,7 +57,7 @@ public class GameController implements ActionListener {
 
 		matrixView.getActionMap().put("right", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.translate(new Point(1, 0));
+				model.shift(false);
 
 				if (model.hasChanged()) {
 					model.notifyObservers();
