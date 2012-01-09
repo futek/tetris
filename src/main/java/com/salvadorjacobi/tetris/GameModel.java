@@ -95,6 +95,8 @@ public class GameModel extends Observable {
 	}
 
 	public void next() {
+		if (gameOver) return;
+
 		if (fallingTetrimino != null) {
 			embed(fallingTetrimino);
 
