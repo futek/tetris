@@ -22,6 +22,7 @@ public class GameModel extends Observable {
 	private boolean gameOver;
 	private boolean paused;
 	private final Stack<Tetrimino> bag = new Stack<Tetrimino>();
+	private int comboCounter;
 	private int linesClearedPerLevel;
 	private int level;
 
@@ -90,9 +91,13 @@ public class GameModel extends Observable {
 			embed(fallingTetrimino);
 
 			if (clear()) {
+				comboCounter++;
+				score += (comboCounter - 1) * 50 * level;
+
 				Constants.sounds.get("clear").play();
+			} else {
+				comboCounter = 0;
 			}
-		}
 
 		if (nextTetrimino == null) {
 			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
@@ -414,6 +419,7 @@ public class GameModel extends Observable {
 		fallingTetrimino = null;
 		swapped = false;
 		gameOver = false;
+		comboCounter = 0;
 		linesClearedPerLevel = 0;
 		level = 1;
 
