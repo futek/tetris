@@ -227,7 +227,7 @@ public class Constants {
 		try {
 			baseImage = ImageIO.read(Tetris.class.getResource("/block.png"));
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 			System.exit(1);
 		}
 
