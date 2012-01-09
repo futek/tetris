@@ -1,7 +1,9 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.Point;
+import java.util.Collections;
 import java.util.Observable;
+import java.util.Stack;
 
 public class GameModel extends Observable {
 	public static final int SKY_HEIGHT = 2;
@@ -15,11 +17,11 @@ public class GameModel extends Observable {
 	private Block[][] matrix;
 	private int score;
 	private Tetrimino fallingTetrimino;
-	private Tetrimino nextTetrimino;
 	private Tetrimino heldTetrimino;
 	private boolean swapped;
 	private boolean gameOver;
 	private boolean paused;
+	private final Stack<Tetrimino> bag = new Stack<Tetrimino>();
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
@@ -42,11 +44,23 @@ public class GameModel extends Observable {
 	}
 
 	public Tetrimino getNextTetrimino() {
-		return nextTetrimino;
+		return bag.peek();
 	}
 
 	public Tetrimino getHeldTetrimino() {
 		return heldTetrimino;
+	}
+
+	public void populateBag() {
+		while (!bag.empty()) {
+			bag.pop();
+		}
+
+		for (Tetrimino.Shape shape : Tetrimino.Shape.VALUES) {
+			bag.push(new Tetrimino(shape, new Point(0,0), 0));
+		}
+
+		Collections.shuffle(bag);
 	}
 
 	public void next() {
@@ -62,10 +76,13 @@ public class GameModel extends Observable {
 			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
 		}
 
-		spawn(nextTetrimino);
+		spawn(bag.pop());
 
-		nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
 		swapped = false;
+
+		if (bag.empty()) {
+			populateBag();
+		}
 
 		setChanged();
 	}
@@ -158,12 +175,14 @@ public class GameModel extends Observable {
 		} else {
 			heldTetrimino = fallingTetrimino;
 
-			spawn(nextTetrimino);
-
-			nextTetrimino = new Tetrimino(Tetrimino.Shape.randomShape(), new Point(0, 0), 0);
+			spawn(bag.pop());
 		}
 
 		swapped = true;
+
+		if (bag.empty()) {
+			populateBag();
+		}
 
 		setChanged();
 	}
@@ -362,6 +381,7 @@ public class GameModel extends Observable {
 		swapped = false;
 		gameOver = false;
 
+		populateBag();
 		next();
 
 		setChanged();

@@ -11,7 +11,7 @@ public class Tetrimino {
 	public enum Shape {
 		I, J, L, O, S, T, Z;
 
-		private static final List<Shape> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
+		public static final List<Shape> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
 		private static final int SIZE = VALUES.size();
 		private static final Random RANDOM = new Random();
 
