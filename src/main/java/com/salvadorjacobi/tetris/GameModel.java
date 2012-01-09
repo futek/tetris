@@ -16,6 +16,7 @@ public class GameModel extends Observable {
 
 	private Block[][] matrix;
 	private int score;
+	private int actionPoints;
 	private Tetrimino fallingTetrimino;
 	private Tetrimino heldTetrimino;
 	private boolean swapped;
@@ -23,6 +24,8 @@ public class GameModel extends Observable {
 	private boolean paused;
 	private final Stack<Tetrimino> bag = new Stack<Tetrimino>();
 	private int comboCounter;
+	private boolean difficultClear;
+	private boolean previousDifficultClear;
 	private int linesCleared;
 	private int linesClearedPerLevel;
 	private int level;
@@ -100,6 +103,14 @@ public class GameModel extends Observable {
 			if (clear()) {
 				comboCounter++;
 				score += (comboCounter - 1) * 50 * level;
+
+				// Back-to-back difficult clear
+				if (previousDifficultClear && difficultClear) {
+					score += actionPoints / 2 * level;
+				}
+
+				previousDifficultClear = difficultClear;
+				difficultClear = false;
 
 				Constants.sounds.get("clear").play();
 			} else {
@@ -288,7 +299,6 @@ public class GameModel extends Observable {
 			}
 		}
 
-		int points = 0;
 		linesCleared = lines;
 		linesClearedPerLevel += lines;
 
@@ -296,20 +306,21 @@ public class GameModel extends Observable {
 			case 0:
 				return false;
 			case 1:
-				points = 100;
+				actionPoints = 100 * level;
 				break;
 			case 2:
-				points = 300;
+				actionPoints = 300 * level;
 				break;
 			case 3:
-				points = 500;
+				actionPoints = 500 * level;
 				break;
 			case 4:
-				points = 800;
+				actionPoints = 800 * level;
+				difficultClear = true;
 				break;
 		}
 
-		score += points;
+		score += actionPoints;
 
 		int threshold = levelThreshold();
 
@@ -483,6 +494,8 @@ public class GameModel extends Observable {
 		swapped = false;
 		gameOver = false;
 		comboCounter = 0;
+		difficultClear = false;
+		previousDifficultClear = false;
 		linesClearedPerLevel = 0;
 		level = 1;
 		tSpinKick = false;
