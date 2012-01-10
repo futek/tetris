@@ -1,6 +1,8 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -8,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
+import javax.swing.Timer;
 
 @SuppressWarnings("serial")
 public class Tetris extends JPanel {
@@ -15,6 +18,8 @@ public class Tetris extends JPanel {
 	public final GameController controller;
 
 	public final MatrixView matrixView;
+
+	public final Timer timer;
 
 	public Tetris(int width, int height, int scale) {
 		model = new GameModel(width, height, scale);
@@ -68,6 +73,18 @@ public class Tetris extends JPanel {
 				);
 
 		this.setBackground(Color.DARK_GRAY);
+
+		timer = new Timer(GameModel.TICK_INTERVAL, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				model.tick();
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
+			}
+		});
+
+		timer.start();
 	}
 
 
@@ -94,6 +111,5 @@ public class Tetris extends JPanel {
 
 		controls.setLocationRelativeTo(frame);
 		controls.setLocation(frame.getLocation().x+frame.getWidth()+5, frame.getLocation().y);
-
 	}
 }

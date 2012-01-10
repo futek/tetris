@@ -6,6 +6,10 @@ import java.util.Observable;
 import java.util.Stack;
 
 public class GameModel extends Observable {
+	public static final int TICK_INTERVAL = 1000 / 60;
+	public static final int LOCK_DELAY = 30;
+	public static final int SOFTDROP_SPEEDUP = 20;
+
 	public static final int SKY_HEIGHT = 2;
 	public static final int SOFTDROP_MULTIPLIER = 1;
 	public static final int HARDDROP_MULTIPLIER = 2;
@@ -31,6 +35,9 @@ public class GameModel extends Observable {
 	private int level;
 	private boolean tSpinKick;
 	private boolean lastMoveRotation;
+	private int hangTime;
+	private int surfaceTime;
+	private boolean softDrop;
 
 	public GameModel(int width, int height, int scale) {
 		this.width = width;
@@ -64,22 +71,42 @@ public class GameModel extends Observable {
 		return level;
 	}
 
-	public int getTickInterval() {
-		return (int) (1200 * Math.exp(-0.2 * level));
+	public int getFallDelay() {
+		return (int) (60 * Math.exp(-0.2 * (level - 1)));
 	}
 
 	public void tick() {
 		if (gameOver || paused) return;
 
-		Point down = new Point(0, 1);
+		hangTime += (softDrop ? SOFTDROP_SPEEDUP : 1);
 
-		if (!translate(down)) {
-			next();
+		Point down = new Point(0, 1);
+		Point originalPosition = fallingTetrimino.getPosition();
+
+		boolean shouldFall = false;
+
+		if (hangTime >= getFallDelay()) {
+			hangTime = 0;
+			shouldFall = true;
 		}
 
-		lastMoveRotation = false;
+		if (translate(down)) {
+			if (shouldFall) {
+				setChanged();
+			} else {
+				fallingTetrimino.setPosition(originalPosition);
+			}
+		} else {
+			surfaceTime++;
 
-		setChanged();
+			if (surfaceTime >= LOCK_DELAY) {
+				surfaceTime = 0;
+
+				next();
+
+				setChanged();
+			}
+		}
 	}
 
 	public void populateBag() {
@@ -204,6 +231,7 @@ public class GameModel extends Observable {
 				tSpinKick = (i != 0);
 			}
 
+			surfaceTime = 0;
 			lastMoveRotation = true;
 
 			setChanged();
@@ -216,14 +244,8 @@ public class GameModel extends Observable {
 		return false;
 	}
 
-	public void softDrop() {
-		Point down = new Point(0, 1);
-
-		if (translate(down)) {
-			score += SOFTDROP_MULTIPLIER;
-		}
-
-		setChanged();
+	public void softDrop(boolean enable) {
+		softDrop = enable;
 	}
 
 	public void hardDrop() {
@@ -241,6 +263,7 @@ public class GameModel extends Observable {
 	public boolean shift(boolean left) {
 		Point offset = new Point((left ? -1 : 1), 0);
 
+		surfaceTime = 0;
 		lastMoveRotation = false;
 
 		return translate(offset);

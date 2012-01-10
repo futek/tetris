@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.KeyStroke;
-import javax.swing.Timer;
 
 public class GameController implements ActionListener {
 	public final GameModel model;
@@ -16,8 +15,6 @@ public class GameController implements ActionListener {
 	private final MatrixView matrixView;
 	private final JButton resetButton;
 	private final JButton pauseButton;
-
-	private final Timer timer;
 
 	public GameController(final GameModel model, MatrixView matrixView, PreviewView previewView, HoldView holdView, ScoreView scoreView, JButton resetButton, JButton pauseButton) {
 		this.model = model;
@@ -32,15 +29,12 @@ public class GameController implements ActionListener {
 
 		model.notifyObservers();
 
-		// Move to model
-		timer = new Timer(model.getTickInterval(), this);
-		timer.start();
-
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "rotatecw");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "rotateccw");
-		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdrop");
+		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "softdropstart");
+		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, true), "softdropstop");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "harddrop");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT, InputEvent.SHIFT_DOWN_MASK, false), "swap");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "reset");
@@ -93,9 +87,19 @@ public class GameController implements ActionListener {
 			}
 		});
 
-		matrixView.getActionMap().put("softdrop", new AbstractAction() {
+		matrixView.getActionMap().put("softdropstart", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.softDrop();
+				model.softDrop(true);
+
+				if (model.hasChanged()) {
+					model.notifyObservers();
+				}
+			}
+		});
+
+		matrixView.getActionMap().put("softdropstop", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				model.softDrop(false);
 
 				if (model.hasChanged()) {
 					model.notifyObservers();
@@ -140,13 +144,7 @@ public class GameController implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == timer) {
-			// Move to model
-			model.tick();
-			model.notifyObservers();
-
-			timer.setDelay(model.getTickInterval());
-		} else if ("restart".equals(e.getActionCommand())) {
+		if ("restart".equals(e.getActionCommand())) {
 			model.reset();
 			model.notifyObservers();
 		} else if ("pause".equals(e.getActionCommand())) {
