@@ -264,10 +264,10 @@ public class Constants {
 	public static final Font baseFont;
 	static {
 		Font font = null;
-		InputStream stream = Tetris.class.getResourceAsStream("/5x5_pixel.ttf");
+		InputStream stream = Tetris.class.getResourceAsStream("/Pixelation.ttf");
 
 		try {
-			font = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(16f);
+			font = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(14f);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			System.exit(1);

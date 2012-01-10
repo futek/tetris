@@ -8,11 +8,12 @@ import java.util.Observer;
 import javax.swing.JLabel;
 
 public class ScoreView extends JLabel implements Observer {
-	private static final String FORMAT = 
-			"<html>" +
-			"LEVEL %d" + "<br><br><br>" +
-			"SCORE<br><br>%d" + "<br><br><br>" +
-			"</html>";
+	private static final String FORMAT = "<html><div align=\"right\">" +
+			"LEVEL<br>" +
+			"%d<br><br>" +
+			"SCORE<br>" +
+			"%d<br><br>" +
+			"</div></html>";
 
 	private final GameModel model;
 	private final int scale;
@@ -23,7 +24,11 @@ public class ScoreView extends JLabel implements Observer {
 		this.model = model;
 		scale = model.scale / 2;
 
-		setPreferredSize(new Dimension(scale * 5, scale * 3));
+		Dimension dimension = new Dimension(scale * 5, scale * 5);
+
+		setMinimumSize(dimension);
+		setMaximumSize(dimension);
+		setPreferredSize(dimension);
 
 		setBackground(Color.DARK_GRAY);
 		setForeground(Color.WHITE);

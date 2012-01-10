@@ -1,7 +1,6 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -74,7 +73,7 @@ public class Tetris extends JPanel {
 
 	public static final void main(String[] args) {
 		Tetris tetris = new Tetris(10, 20, 32);
-		
+
 		JFrame controls = new JFrame("CONTROLS");
 		ControlsView controlsView = new ControlsView();
 		controlsView.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
@@ -92,9 +91,9 @@ public class Tetris extends JPanel {
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		
+
 		controls.setLocationRelativeTo(frame);
 		controls.setLocation(frame.getLocation().x+frame.getWidth()+5, frame.getLocation().y);
-		
+
 	}
 }
