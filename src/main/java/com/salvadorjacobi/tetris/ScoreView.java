@@ -8,7 +8,11 @@ import java.util.Observer;
 import javax.swing.JLabel;
 
 public class ScoreView extends JLabel implements Observer {
-	private static final String FORMAT = "<html>LEVEL %d<br><br><br>SCORE<br><br>%d</html>";
+	private static final String FORMAT = 
+			"<html>" +
+			"LEVEL %d" + "<br><br><br>" +
+			"SCORE<br><br>%d" + "<br><br><br>" +
+			"</html>";
 
 	private final GameModel model;
 	private final int scale;
