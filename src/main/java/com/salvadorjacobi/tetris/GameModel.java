@@ -92,6 +92,10 @@ public class GameModel extends Observable {
 
 		if (translate(down)) {
 			if (shouldFall) {
+				if (softDrop) {
+					score += SOFTDROP_MULTIPLIER;
+				}
+
 				setChanged();
 			} else {
 				fallingTetrimino.setPosition(originalPosition);
