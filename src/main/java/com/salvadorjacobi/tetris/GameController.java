@@ -41,8 +41,9 @@ public class GameController implements ActionListener {
 
 		matrixView.getActionMap().put("left", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.shift(true);
+				if (!model.isRunning()) return;
 
+				model.shift(true);
 				model.notifyObservers();
 			}
 		});
