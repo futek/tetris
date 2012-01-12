@@ -47,34 +47,67 @@ public class GameModel extends Observable {
 		reset();
 	}
 
+	/**
+	 * Get a block from the matrix
+	 * @param x the x-coordinate
+	 * @param y the y-coordinate
+	 * @return the block at the specified coordinates
+	 */
 	public Block getBlock(int x, int y) {
 		return matrix[x][y];
 	}
 
+	/**
+	 * Get the current score
+	 * @return the current score
+	 */
 	public int getScore() {
 		return score;
 	}
 
+	/**
+	 * Get the currently falling tetrimino
+	 * @return the currently falling tetrimino
+	 */
 	public Tetrimino getFallingTetrimino() {
 		return fallingTetrimino;
 	}
 
+	/**
+	 * Get the next tetrimino in the queue
+	 * @return the next tetrimino
+	 */
 	public Tetrimino getNextTetrimino() {
 		return bag.peek();
 	}
 
+	/**
+	 * Get the currently held tetrimino
+	 * @return the currently held tetrimino
+	 */
 	public Tetrimino getHeldTetrimino() {
 		return heldTetrimino;
 	}
 
+	/**
+	 * Get the current
+	 * @return the current level
+	 */
 	public int getLevel() {
 		return level;
 	}
 
+	/**
+	 * Calculate the fall delay of the falling tetrimino in ticks
+	 * @return ticks to wait before dropping the falling tetrimino
+	 */
 	public int getFallDelay() {
 		return (int) (60 * Math.exp(-0.2 * (level - 1)));
 	}
 
+	/**
+	 * Update the game by one tick
+	 */
 	public void tick() {
 		hangTime += (softDrop ? SOFTDROP_SPEEDUP : 1);
 
@@ -111,6 +144,9 @@ public class GameModel extends Observable {
 		}
 	}
 
+	/**
+	 * Populate the random bag with one of each tetrimino and shuffle
+	 */
 	public void populateBag() {
 		while (!bag.empty()) {
 			bag.pop();
@@ -123,9 +159,10 @@ public class GameModel extends Observable {
 		Collections.shuffle(bag);
 	}
 
+	/**
+	 * Setup the next tetrimino
+	 */
 	public void next() {
-		if (gameOver) return;
-
 		if (fallingTetrimino != null) {
 			embed(fallingTetrimino);
 
@@ -178,6 +215,11 @@ public class GameModel extends Observable {
 		setChanged();
 	}
 
+	/**
+	 * Translate position of falling tetrimino
+	 * @param delta translation offset
+	 * @return true if translation was successful
+	 */
 	public boolean translate(Point delta) {
 		Point originalPosition = fallingTetrimino.getPosition();
 
@@ -193,7 +235,12 @@ public class GameModel extends Observable {
 		return true;
 	}
 
-	public boolean rotate(boolean direction) {
+	/**
+	 * Rotate falling tetrimino clockwise or counterclockwise
+	 * @param clockwise clockwise if true, counterclock wise if false
+	 * @return true if rotation was successful
+	 */
+	public boolean rotate(boolean clockwise) {
 		if (gameOver || paused) return false;
 
 		Tetrimino.Shape shape = fallingTetrimino.getShape();
@@ -202,7 +249,7 @@ public class GameModel extends Observable {
 		int nextRotation;
 		int[][] kickTranslations;
 
-		fallingTetrimino.rotate(direction);
+		fallingTetrimino.rotate(clockwise);
 
 		nextRotation = fallingTetrimino.getRotation();
 
@@ -243,15 +290,22 @@ public class GameModel extends Observable {
 			return true;
 		}
 
-		fallingTetrimino.rotate(!direction);
+		fallingTetrimino.rotate(!clockwise);
 
 		return false;
 	}
 
+	/**
+	 * Enable or disable softdrop
+	 * @param enable true enables, false disables
+	 */
 	public void softDrop(boolean enable) {
 		softDrop = enable;
 	}
 
+	/**
+	 * Perform a harddrop
+	 */
 	public void hardDrop() {
 		int lines = drop(fallingTetrimino);
 
@@ -264,6 +318,11 @@ public class GameModel extends Observable {
 		next();
 	}
 
+	/**
+	 * Shift the falling tetrimino left or right
+	 * @param left if true, right if false
+	 * @return true if the shift was successful
+	 */
 	public boolean shift(boolean left) {
 		Point offset = new Point((left ? -1 : 1), 0);
 
@@ -273,6 +332,9 @@ public class GameModel extends Observable {
 		return translate(offset);
 	}
 
+	/**
+	 * Perform a tetrimino swap if possible
+	 */
 	public void swap() {
 		if (swapped) return;
 
@@ -296,6 +358,10 @@ public class GameModel extends Observable {
 		setChanged();
 	}
 
+	/**
+	 * Attempt to clear lines
+	 * @return true if any lines were cleared
+	 */
 	public boolean clear() {
 		int lines = 0;
 
@@ -364,10 +430,18 @@ public class GameModel extends Observable {
 		return true;
 	}
 
+	/**
+	 * Calculates the amount of lines cleared required to level up
+	 * @return lines cleared required for level up
+	 */
 	public int levelThreshold() {
 		return (int) (10 + 5 * Math.log(level));
 	}
 
+	/**
+	 * Spawn a tetrimino a the top of the matrix in its initial rotation
+	 * @param tetrimino the tetrimino to spawn
+	 */
 	public void spawn(Tetrimino tetrimino) {
 		Point startPosition = new Point(width / 2 - 1, 1);
 
@@ -381,6 +455,12 @@ public class GameModel extends Observable {
 		}
 	}
 
+	/**
+	 * Drops a tetrimino until it collides with something
+	 * and returns the amount of lines it travelled in the process.
+	 * @param	tetrimino	the tetrimino to drop
+	 * @return	the amount of lines travelled in the drop.
+	 * */
 	public int drop(Tetrimino tetrimino) {
 		int lines = 0;
 
@@ -398,6 +478,10 @@ public class GameModel extends Observable {
 		return lines - 1;
 	}
 
+	/**
+	 * Embed a tetrimino into the matrix
+	 * @param tetrimino the tetrimino to embed
+	 */
 	public void embed(Tetrimino tetrimino) {
 		Tetrimino.Shape shape = tetrimino.getShape();
 		Point position = tetrimino.getPosition();
@@ -429,6 +513,12 @@ public class GameModel extends Observable {
 		}
 	}
 
+	/**
+	 * Calculate the sum of blocks diagonally from the center of a tetrimino.
+	 * Used to detect T-spins.
+	 * @param tetrimino
+	 * @return
+	 */
 	public int cornerSum(Tetrimino tetrimino) {
 		int sum = 0;
 		Point position = tetrimino.getPosition();
@@ -449,6 +539,11 @@ public class GameModel extends Observable {
 		return sum;
 	}
 
+	/**
+	 * Determine if a tetrimino is overlapping with any blocks in the matrix
+	 * @param tetrimino the tetrimino to test
+	 * @return true if the tetrimino is overlapping
+	 */
 	public boolean isOverlapping(Tetrimino tetrimino) {
 		Tetrimino.Shape shape = tetrimino.getShape();
 		Point position = tetrimino.getPosition();
@@ -473,6 +568,12 @@ public class GameModel extends Observable {
 		return false;
 	}
 
+	/**
+	 * Determine if a tetrimino is out of bounds
+	 * @param tetrimino the tetrimino to test
+	 * @param cutAtSkyline if true, consider anything above the skyline out of bounds
+	 * @return true if the tetrimino is considered out of bounds
+	 */
 	public boolean isOutOfBounds(Tetrimino tetrimino, boolean cutAtSkyline) {
 		Tetrimino.Shape shape = tetrimino.getShape();
 		Point position = tetrimino.getPosition();
@@ -499,26 +600,43 @@ public class GameModel extends Observable {
 		return false;
 	}
 
+	/**
+	 * Determine if game over has been declared
+	 * @return true if the game is over
+	 */
 	public boolean isGameOver() {
 		return gameOver;
 	}
 
+	/**
+	 * Determine if the game is paused
+	 * @return true if the game is paused
+	 */
 	public boolean isPaused() {
 		return paused;
 	}
 
+	/**
+	 * Pause the game
+	 */
 	public void pause() {
 		paused = true;
 
 		setChanged();
 	}
 
+	/**
+	 * Resume the game from a paused state
+	 */
 	public void resume() {
 		paused = false;
 
 		setChanged();
 	}
 
+	/**
+	 * Reset the game
+	 */
 	public void reset() {
 		matrix = new Block[width][height];
 		score = 0;
@@ -541,6 +659,10 @@ public class GameModel extends Observable {
 		setChanged();
 	}
 
+	/**
+	 * Determine if the game is running
+	 * @return true if the game is not paused nor game over
+	 */
 	public boolean isRunning() {
 		return !(gameOver || paused);
 	}
