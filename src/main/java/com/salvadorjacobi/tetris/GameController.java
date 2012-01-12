@@ -16,7 +16,7 @@ public class GameController implements ActionListener {
 	private final JButton resetButton;
 	private final JButton pauseButton;
 
-	public GameController(final GameModel model, MatrixView matrixView, PreviewView previewView, HoldView holdView, ScoreView scoreView, JButton resetButton, JButton pauseButton) {
+	public GameController(final GameModel model, MatrixView matrixView, PreviewView previewView, HoldView holdView, ScoreView scoreView, JButton resetButton, final JButton pauseButton) {
 		this.model = model;
 		this.matrixView = matrixView;
 		this.resetButton = resetButton;
@@ -43,24 +43,23 @@ public class GameController implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.shift(true);
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.notifyObservers();
 			}
 		});
 
 		matrixView.getActionMap().put("right", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.shift(false);
+				if (!model.isRunning()) return;
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.shift(false);
+				model.notifyObservers();
 			}
 		});
 
 		matrixView.getActionMap().put("rotatecw", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				if (!model.isRunning()) return;
+
 				if (model.rotate(true)) {
 					Constants.sounds.get("rotate").play();
 				} else {
@@ -75,56 +74,54 @@ public class GameController implements ActionListener {
 
 		matrixView.getActionMap().put("rotateccw", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				if (!model.isRunning()) return;
+
 				if (model.rotate(false)) {
 					Constants.sounds.get("rotate").play();
 				} else {
 					Constants.sounds.get("denied").play();
 				}
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.notifyObservers();
 			}
 		});
 
 		matrixView.getActionMap().put("softdropstart", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.softDrop(true);
+				if (!model.isRunning()) return;
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.softDrop(true);
+				model.notifyObservers();
 			}
 		});
 
 		matrixView.getActionMap().put("softdropstop", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.softDrop(false);
+				if (!model.isRunning()) return;
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.softDrop(false);
+				model.notifyObservers();
 			}
 		});
 
 		matrixView.getActionMap().put("harddrop", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				if (!model.isRunning()) return;
+
 				model.hardDrop();
+
 				Constants.sounds.get("drop").play();
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.notifyObservers();
 			}
 		});
 
 		matrixView.getActionMap().put("swap", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				model.swap();
+				if (!model.isRunning()) return;
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.swap();
+				model.notifyObservers();
 			}
 		});
 
@@ -132,9 +129,9 @@ public class GameController implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.reset();
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				pauseButton.setText("PAUSE");
+
+				model.notifyObservers();
 			}
 		});
 	}
@@ -146,21 +143,22 @@ public class GameController implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if ("restart".equals(e.getActionCommand())) {
 			model.reset();
-			model.notifyObservers();
+
+			pauseButton.setText("PAUSE");
 		} else if ("pause".equals(e.getActionCommand())) {
+			if (model.isGameOver()) return;
+
 			if (model.isPaused()) {
 				model.resume();
 
-				matrixView.setEnabled(true);
 				pauseButton.setText("PAUSE");
 			} else {
 				model.pause();
 
-				matrixView.setEnabled(false);
 				pauseButton.setText("RESUME");
 			}
-
-			model.notifyObservers();
 		}
+
+		model.notifyObservers();
 	}
 }

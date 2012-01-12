@@ -76,11 +76,10 @@ public class Tetris extends JPanel {
 
 		timer = new Timer(GameModel.TICK_INTERVAL, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.tick();
+				if (!model.isRunning()) return;
 
-				if (model.hasChanged()) {
-					model.notifyObservers();
-				}
+				model.tick();
+				model.notifyObservers();
 			}
 		});
 

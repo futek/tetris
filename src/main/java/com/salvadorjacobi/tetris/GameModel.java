@@ -76,8 +76,6 @@ public class GameModel extends Observable {
 	}
 
 	public void tick() {
-		if (gameOver || paused) return;
-
 		hangTime += (softDrop ? SOFTDROP_SPEEDUP : 1);
 
 		Point down = new Point(0, 1);
@@ -196,6 +194,8 @@ public class GameModel extends Observable {
 	}
 
 	public boolean rotate(boolean direction) {
+		if (gameOver || paused) return false;
+
 		Tetrimino.Shape shape = fallingTetrimino.getShape();
 		int rotation = fallingTetrimino.getRotation();
 		Point originalPosition = fallingTetrimino.getPosition();
@@ -509,10 +509,14 @@ public class GameModel extends Observable {
 
 	public void pause() {
 		paused = true;
+
+		setChanged();
 	}
 
 	public void resume() {
 		paused = false;
+
+		setChanged();
 	}
 
 	public void reset() {
@@ -522,6 +526,7 @@ public class GameModel extends Observable {
 		fallingTetrimino = null;
 		swapped = false;
 		gameOver = false;
+		paused = false;
 		comboCounter = 0;
 		difficultClear = false;
 		previousDifficultClear = false;
@@ -534,5 +539,9 @@ public class GameModel extends Observable {
 		next();
 
 		setChanged();
+	}
+
+	public boolean isRunning() {
+		return !(gameOver || paused);
 	}
 }
