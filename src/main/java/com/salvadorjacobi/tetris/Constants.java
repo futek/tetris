@@ -14,8 +14,6 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.jdesktop.swingx.image.ColorTintFilter;
-
 public class Constants {
 	public static final Map<Tetrimino.Shape, Color> blockColors;
 	static {
@@ -238,7 +236,7 @@ public class Constants {
 			Color color = entry.getValue();
 
 			BufferedImage tintedImage = null;
-			BufferedImageOp op = new ColorTintFilter(color, 0.5f);
+			BufferedImageOp op = new ColorTintImage(color, 0.5f);
 			tintedImage = op.filter(baseImage, null);
 
 			map.put(shape, tintedImage);
