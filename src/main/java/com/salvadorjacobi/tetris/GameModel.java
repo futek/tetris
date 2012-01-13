@@ -517,7 +517,7 @@ public class GameModel extends Observable {
 	 * Calculate the sum of blocks diagonally from the center of a tetrimino.
 	 * Used to detect T-spins.
 	 * @param tetrimino
-	 * @return
+	 * @return the corner sum
 	 */
 	public int cornerSum(Tetrimino tetrimino) {
 		int sum = 0;
