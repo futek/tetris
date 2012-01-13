@@ -236,7 +236,7 @@ public class Constants {
 			Color color = entry.getValue();
 
 			BufferedImage tintedImage = null;
-			BufferedImageOp op = new ColorTintImage(color, 0.5f);
+			BufferedImageOp op = new ColorTintFilter(color, 0.5f);
 			tintedImage = op.filter(baseImage, null);
 
 			map.put(shape, tintedImage);

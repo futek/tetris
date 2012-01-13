@@ -8,11 +8,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 
-public class ColorTintImage implements BufferedImageOp {
+public class ColorTintFilter implements BufferedImageOp {
 	public final Color tintColor;
 	public final float mixRatio;
 
-	public ColorTintImage(Color tintColor, float mixRatio) {
+	public ColorTintFilter(Color tintColor, float mixRatio) {
 		this.tintColor = tintColor;
 		this.mixRatio = mixRatio;
 	}
