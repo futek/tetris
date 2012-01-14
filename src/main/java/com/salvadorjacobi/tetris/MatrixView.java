@@ -22,10 +22,10 @@ public class MatrixView extends JPanel implements Observer {
 
 	public MatrixView(GameModel model) {
 		this.model = model;
-		this.width = model.width;
-		this.height = model.height;
+		this.width = model.width * model.scale;
+		this.height = (model.height - GameModel.SKY_HEIGHT) * model.scale;
 
-		Dimension dimension = new Dimension(this.width * model.scale, (this.height - GameModel.SKY_HEIGHT) * model.scale);
+		Dimension dimension = new Dimension(this.width, this.height);
 
 		setMinimumSize(dimension);
 		setMaximumSize(dimension);
@@ -48,17 +48,17 @@ public class MatrixView extends JPanel implements Observer {
 		// Grid
 		g.setColor(Color.decode("#1a1a1a"));
 
-		for (int i = 1; i < width; i++) {
-			g2d.drawLine(model.scale * i, 0, model.scale * i, height * model.scale);
+		for (int i = 1; i < model.width; i++) {
+			g2d.drawLine(model.scale * i, 0, model.scale * i, model.height * model.scale);
 		}
 
-		for (int i = 1; i < height; i++) {
-			g2d.drawLine(0, model.scale * i, width * model.scale, model.scale * i);
+		for (int i = 1; i < model.height; i++) {
+			g2d.drawLine(0, model.scale * i, model.width * model.scale, model.scale * i);
 		}
 
 		// Matrix
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
+		for (int i = 0; i < model.width; i++) {
+			for (int j = 0; j < model.height; j++) {
 				Block block = model.getBlock(i, j);
 				if (block == null) {
 					continue;
@@ -117,18 +117,40 @@ public class MatrixView extends JPanel implements Observer {
 			}
 		}
 
-		if (model.isGameOver()) {
-			g2d.setColor(Color.RED);
-			g2d.fillRect(100, 275, 110, 40);
-
+		if (!model.isRunning()) {
 			g2d.setColor(Color.WHITE);
-			g2d.drawString("GAME OVER", 120, 300);
-		} else if (model.isPaused()) {
-			g2d.setColor(Color.BLUE);
-			g2d.fillRect(100, 275, 120, 40);
 
+			if (model.isGameOver()) {
+				drawMessage(g2d, "GAME OVER", "", "SCORE:", Integer.toString(model.getScore()));
+			} else if (model.isPaused()) {
+				drawMessage(g2d, "PAUSED");
+			}
+		}
+	}
+
+	private void drawMessage(Graphics2D g2d, String... lines) {
+		g2d.setFont(Constants.messageFont);
+
+		int maxAscent = g2d.getFontMetrics().getMaxAscent();
+
+		// Center coordinates
+		int mx = width / 2;
+		int my = height / 2 - maxAscent * (lines.length) / 2;
+
+		for (int i = 0; i < lines.length; i++) {
+			String line = lines[i];
+
+			// Text coordinates
+			int x = mx - g2d.getFontMetrics().stringWidth(line) / 2;
+			int y = my + maxAscent * i;
+
+			// Draw text shadow
+			g2d.setColor(Color.BLACK);
+			g2d.drawString(line, x + 2, y + 2);
+
+			// Draw text
 			g2d.setColor(Color.WHITE);
-			g2d.drawString("GAME PAUSED", 118, 300);
+			g2d.drawString(line, x, y);
 		}
 	}
 
