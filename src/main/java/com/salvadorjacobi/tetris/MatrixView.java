@@ -117,14 +117,10 @@ public class MatrixView extends JPanel implements Observer {
 			}
 		}
 
-		if (!model.isRunning()) {
-			g2d.setColor(Color.WHITE);
-
-			if (model.isGameOver()) {
-				drawMessage(g2d, "GAME OVER", "", "SCORE:", Integer.toString(model.getScore()));
-			} else if (model.isPaused()) {
-				drawMessage(g2d, "PAUSED");
-			}
+		if (model.isGameOver()) {
+			drawMessage(g2d, "GAME OVER", "", "SCORE", Integer.toString(model.getScore()));
+		} else if (model.isPaused()) {
+			drawMessage(g2d, "PAUSED");
 		}
 	}
 
