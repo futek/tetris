@@ -20,7 +20,6 @@ public class GameModel extends Observable {
 
 	private Block[][] matrix;
 	private int score;
-	private int actionPoints;
 	private Tetrimino fallingTetrimino;
 	private Tetrimino heldTetrimino;
 	private boolean swapped;
@@ -31,7 +30,6 @@ public class GameModel extends Observable {
 	private boolean difficultClear;
 	private boolean previousDifficultClear;
 	private int linesCleared;
-	private int linesClearedPerLevel;
 	private int level;
 	private boolean tSpinKick;
 	private boolean lastMoveRotation;
@@ -160,57 +158,111 @@ public class GameModel extends Observable {
 	}
 
 	/**
-	 * Setup the next tetrimino
+	 * Lock falling tetrimino in place,
+	 * award points,
+	 * and setup next tetrimino
 	 */
 	public void next() {
 		if (fallingTetrimino != null) {
+			Tetrimino.Shape shape = fallingTetrimino.getShape();
+
+			// Embed falling tetrimino into matrix
 			embed(fallingTetrimino);
 
-			boolean threeCorners = (fallingTetrimino.getShape() == Tetrimino.Shape.T && cornerSum(fallingTetrimino) >= 3);
+			// Scoring
+			int cornerSum = cornerSum(fallingTetrimino); // Must run prior to clear()
+			boolean tSpin = (shape == Tetrimino.Shape.T && cornerSum >= 3 && lastMoveRotation);
 
-			if (clear()) {
-				comboCounter++;
-				score += (comboCounter - 1) * 50 * level;
+			int lines = clear();
+			int points = 0;
 
-				// Back-to-back difficult clear
+			// Award initial points
+			switch (lines) {
+				case 1:
+					points += 100 * level;
+					break;
+				case 2:
+					points += 300 * level;
+					break;
+				case 3:
+					points += 500 * level;
+					break;
+				case 4:
+					points += 800 * level;
+					difficultClear = true;
+					break;
+			};
+
+			if (lines > 0) {
+				// Recognize a clearing, kicked T-spin as a difficult clear
+				if (tSpin && tSpinKick) {
+					difficultClear = true;
+				}
+
+				// Reward back-to-back difficult clear
 				if (previousDifficultClear && difficultClear) {
-					score += actionPoints / 2 * level;
+					points += points / 2 * level;
 				}
 
 				previousDifficultClear = difficultClear;
 				difficultClear = false;
 
+				// Reward combos
+				comboCounter++;
+				points += (comboCounter - 1) * 50 * level;
+
+				// Play sound
 				Constants.sounds.get("clear").play();
 			} else {
+				// Reset combo counter
 				comboCounter = 0;
 			}
 
-			if (threeCorners && lastMoveRotation) {
-				switch (linesCleared) {
+			// Reward T-spins
+			if (tSpin) {
+				switch (lines) {
 					case 0:
-						score += (tSpinKick ? 100 : 0) * level;
+						points += (tSpinKick ? 100 : 0) * level;
 						break;
 					case 1:
-						score += (tSpinKick ? 200 : 100) * level;
+						points += (tSpinKick ? 200 : 100) * level;
 						break;
 					case 2:
-						score += (tSpinKick ? 1200 : 300) * level;
+						points += (tSpinKick ? 1200 : 300) * level;
 						break;
 					case 3:
-						score += (tSpinKick ? 1600 : 500) * level;
+						points += (tSpinKick ? 1600 : 500) * level;
 						break;
 				}
 			}
+
+			// Add points to score
+			score += points;
+
+			// Level up
+			linesCleared += lines;
+
+			int threshold = levelThreshold();
+
+			while (linesCleared >= threshold) {
+				level++;
+				linesCleared -= threshold;
+
+				threshold = levelThreshold(); // Update threshold
+			}
 		}
 
+		// Spawn next tetrimino
 		spawn(bag.pop());
 
-		swapped = false;
-		tSpinKick = false;
-
+		// Refill random bag if empty
 		if (bag.empty()) {
 			populateBag();
 		}
+
+		// Reset variables
+		swapped = false;
+		tSpinKick = false;
 
 		setChanged();
 	}
@@ -277,12 +329,12 @@ public class GameModel extends Observable {
 				continue;
 			}
 
-			// Detect kick
+			// Detect T-spin kick
 			if (shape == Tetrimino.Shape.T) {
-				tSpinKick = (i != 0);
+				tSpinKick = (i != 0); // T-tetrimino did not use first offset, i.e. it kicked
 			}
 
-			surfaceTime = 0;
+			surfaceTime = 0; // Reset surface time
 			lastMoveRotation = true;
 
 			setChanged();
@@ -360,22 +412,24 @@ public class GameModel extends Observable {
 
 	/**
 	 * Attempt to clear lines
-	 * @return true if any lines were cleared
+	 * @return amount of lines cleared
 	 */
-	public boolean clear() {
+	public int clear() {
 		int lines = 0;
 
 		for (int j = 0; j < height; j++) {
-			boolean cleared = true;
+			// Assume full row
+			boolean full = true;
 
 			for (int i = 0; i < width; i++) {
 				if (getBlock(i, j) == null) {
-					cleared = false;
+					full = false;
 					break;
 				}
 			}
 
-			if (!cleared) {
+			// Continue to next row if not full
+			if (!full) {
 				continue;
 			}
 
@@ -394,40 +448,11 @@ public class GameModel extends Observable {
 			}
 		}
 
-		linesCleared = lines;
-		linesClearedPerLevel += lines;
-
-		switch (lines) {
-			case 0:
-				return false;
-			case 1:
-				actionPoints = 100 * level;
-				break;
-			case 2:
-				actionPoints = 300 * level;
-				break;
-			case 3:
-				actionPoints = 500 * level;
-				break;
-			case 4:
-				actionPoints = 800 * level;
-				difficultClear = true;
-				break;
+		if (lines > 0) {
+			setChanged();
 		}
 
-		score += actionPoints;
-
-		int threshold = levelThreshold();
-
-		while (linesClearedPerLevel >= threshold) {
-			level++;
-			linesClearedPerLevel -= threshold;
-		}
-
-		setChanged();
-		notifyObservers();
-
-		return true;
+		return lines;
 	}
 
 	/**
@@ -648,7 +673,7 @@ public class GameModel extends Observable {
 		comboCounter = 0;
 		difficultClear = false;
 		previousDifficultClear = false;
-		linesClearedPerLevel = 0;
+		linesCleared = 0;
 		level = 1;
 		tSpinKick = false;
 		lastMoveRotation = false;
