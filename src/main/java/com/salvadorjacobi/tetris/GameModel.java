@@ -236,6 +236,8 @@ public class GameModel extends Observable {
 		surfaceTime = 0;
 		lastMoveRotation = false;
 
+		setChanged();
+
 		return translate(offset);
 	}
 
@@ -497,8 +499,6 @@ public class GameModel extends Observable {
 			fallingTetrimino.setPosition(originalPosition);
 			return false;
 		}
-
-		setChanged();
 
 		return true;
 	}
