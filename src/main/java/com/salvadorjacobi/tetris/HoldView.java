@@ -15,7 +15,7 @@ public class HoldView extends TetriminoView implements Observer {
 
 		this.model = model;
 
-		this.setBorder(
+		setBorder(
 				BorderFactory.createTitledBorder(
 						BorderFactory.createEmptyBorder(),
 						"HOLD",

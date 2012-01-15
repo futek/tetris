@@ -16,7 +16,6 @@ public class ControlsView extends JLabel {
 			"BACKSPACE<br>RESET" +
 			"</html>";
 
-
 	public ControlsView() {
 		super();
 

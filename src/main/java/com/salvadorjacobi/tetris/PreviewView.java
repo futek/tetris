@@ -15,7 +15,7 @@ public class PreviewView extends TetriminoView implements Observer {
 
 		this.model = model;
 
-		this.setBorder(
+		setBorder(
 				BorderFactory.createTitledBorder(
 						BorderFactory.createEmptyBorder(),
 						"NEXT",

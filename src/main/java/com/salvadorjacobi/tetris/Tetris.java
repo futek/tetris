@@ -90,7 +90,6 @@ public class Tetris extends JPanel {
 		timer.start();
 	}
 
-
 	public static final void main(String[] args) {
 		Tetris tetris = new Tetris(10, 20, 32);
 

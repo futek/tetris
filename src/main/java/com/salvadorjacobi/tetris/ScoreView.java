@@ -11,8 +11,6 @@ import javax.swing.JPanel;
 
 public class ScoreView extends JPanel implements Observer {
 	private final GameModel model;
-	private int levelWidth;
-	private int scoreWidth;
 
 	public ScoreView(GameModel model) {
 		super();
@@ -25,9 +23,6 @@ public class ScoreView extends JPanel implements Observer {
 		setMinimumSize(dimension);
 		setMaximumSize(dimension);
 		setPreferredSize(dimension);
-
-		int levelWidth = getFontMetrics(Constants.baseFont).stringWidth("LEVEL");
-		int scoreWidth = getFontMetrics(Constants.baseFont).stringWidth("SCORE");
 	}
 
 	@Override
