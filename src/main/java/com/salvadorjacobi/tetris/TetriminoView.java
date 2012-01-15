@@ -48,6 +48,7 @@ public class TetriminoView extends JPanel {
 
 		int size = pattern.length;
 
+		// Offsets based on shape
 		double dx = 0;
 		double dy = 0;
 
@@ -64,6 +65,7 @@ public class TetriminoView extends JPanel {
 				dy += 1.5;
 		}
 
+		// Draw tetrimino
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (pattern[j][i] == 1) {

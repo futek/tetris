@@ -35,6 +35,7 @@ public class ScoreView extends JPanel implements Observer {
 		g2d.setBackground(Color.DARK_GRAY);
 		g2d.clearRect(0, 0, getWidth(), getHeight());
 
+		// Font settings
 		g2d.setFont(Constants.baseFont);
 		g2d.setColor(Color.WHITE);
 
@@ -45,18 +46,22 @@ public class ScoreView extends JPanel implements Observer {
 		int y = 0;
 		int width;
 
+		// Level label
 		y += maxAscent;
 		width = g2d.getFontMetrics().stringWidth("LEVEL");
 		g2d.drawString("LEVEL", getWidth() / 2 - width / 2, y);
 
+		// Actual level
 		y += maxAscent;
 		width = g2d.getFontMetrics().stringWidth(level);
 		g2d.drawString(level, getWidth() - width, y);
 
+		// Score label
 		y += maxAscent * 2;
 		width = g2d.getFontMetrics().stringWidth("SCORE");
 		g2d.drawString("SCORE", getWidth() / 2 - width / 2, y);
 
+		// Actual score
 		y += maxAscent;
 		width = g2d.getFontMetrics().stringWidth(score);
 		g2d.drawString(score, getWidth() - width, y);
