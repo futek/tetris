@@ -139,6 +139,8 @@ public class GameController implements ActionListener {
 			}
 		});
 
+		playList();
+
 		model.notifyObservers();
 	}
 
