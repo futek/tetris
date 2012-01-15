@@ -145,7 +145,7 @@ public class GameController implements ActionListener {
 	}
 
 	public void playList() {
-		Constants.sounds.get("rickroll").loop();
+		Constants.sounds.get("nyan").loop();
 	}
 
 	public void actionPerformed(ActionEvent e) {
