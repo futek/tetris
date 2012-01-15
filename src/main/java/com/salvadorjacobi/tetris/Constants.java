@@ -254,7 +254,6 @@ public class Constants {
 		map.put("clear", Applet.newAudioClip(Tetris.class.getResource("/clear.wav")));
 		map.put("denied", Applet.newAudioClip(Tetris.class.getResource("/denied.wav")));
 		map.put("lock", Applet.newAudioClip(Tetris.class.getResource("/lock.wav")));
-		map.put("nyan", Applet.newAudioClip(Tetris.class.getResource("/nyan.mid")));
 
 		sounds = Collections.unmodifiableMap(map);
 	}

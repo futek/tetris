@@ -139,13 +139,7 @@ public class GameController implements ActionListener {
 			}
 		});
 
-		playList();
-
 		model.notifyObservers();
-	}
-
-	public void playList() {
-		Constants.sounds.get("nyan").loop();
 	}
 
 	public void actionPerformed(ActionEvent e) {
