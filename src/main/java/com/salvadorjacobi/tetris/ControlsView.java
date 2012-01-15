@@ -1,33 +1,27 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
 import javax.swing.JLabel;
 
-@SuppressWarnings("serial")
 public class ControlsView extends JLabel {
-	private static final String FORMAT = 
-			"<html>" +
-			"pil op - roter mod uret" + "<br><br>" +
-			"z - roter med uret" + "<br><br>" +
-			"pil venstre - ryk tetrimino til venstre" + "<br><br>" +
-			"pil højre - ryk tetrimino til højre" + "<br><br>" +
-			"pil ned - øg falde hastigheden" + "<br><br>" +
-			"skift - hold på tetrimino" + "<br><br>" +
-			"mellemrum - hårdt fald" + "<br><br>" +
-			"tilbage - nyt spil" +
+	private static final String TEXT = "<html>" +
+			"LEFT ARROW<br>SHIFT LEFT<br><br>" +
+			"RIGHT ARROW<br>SHIFT RIGHT<br><br>" +
+			"UP ARROW<br>ROTATE CLOCKWISE<br><br>" +
+			"Z<br>ROTATE COUNTERCLOCKWISE<br><br>" +
+			"DOWN ARROW<br>SOFT DROP<br><br>" +
+			"SPACE<br>HARD DROP<br><br>" +
+			"SHIFT<br>SWAP<br><br>" +
+			"BACKSPACE<br>RESET" +
 			"</html>";
 
 
 	public ControlsView() {
 		super();
 
-		setPreferredSize(new Dimension(200, 450));
-
 		setForeground(Color.WHITE);
-
 		setFont(Constants.baseFont);
-		setText(String.format(FORMAT));
+		setText(String.format(TEXT));
 	}
 }
