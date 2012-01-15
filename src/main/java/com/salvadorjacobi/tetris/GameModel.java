@@ -143,151 +143,6 @@ public class GameModel extends Observable {
 	}
 
 	/**
-	 * Populate the random bag with one of each tetrimino and shuffle
-	 */
-	public void populateBag() {
-		while (!bag.empty()) {
-			bag.pop();
-		}
-
-		for (Tetrimino.Shape shape : Tetrimino.Shape.VALUES) {
-			bag.push(new Tetrimino(shape, new Point(0,0), 0));
-		}
-
-		Collections.shuffle(bag);
-	}
-
-	/**
-	 * Lock falling tetrimino in place,
-	 * award points,
-	 * and setup next tetrimino
-	 */
-	public void next() {
-		if (fallingTetrimino != null) {
-			Tetrimino.Shape shape = fallingTetrimino.getShape();
-
-			// Embed falling tetrimino into matrix
-			embed(fallingTetrimino);
-
-			// Scoring
-			int cornerSum = cornerSum(fallingTetrimino); // Must run prior to clear()
-			boolean tSpin = (shape == Tetrimino.Shape.T && cornerSum >= 3 && lastMoveRotation);
-
-			int lines = clear();
-			int points = 0;
-
-			// Award initial points
-			switch (lines) {
-				case 1:
-					points += 100 * level;
-					break;
-				case 2:
-					points += 300 * level;
-					break;
-				case 3:
-					points += 500 * level;
-					break;
-				case 4:
-					points += 800 * level;
-					difficultClear = true;
-					break;
-			};
-
-			if (lines > 0) {
-				// Recognize a clearing, kicked T-spin as a difficult clear
-				if (tSpin && tSpinKick) {
-					difficultClear = true;
-				}
-
-				// Reward back-to-back difficult clear
-				if (previousDifficultClear && difficultClear) {
-					points += points / 2 * level;
-				}
-
-				previousDifficultClear = difficultClear;
-				difficultClear = false;
-
-				// Reward combos
-				comboCounter++;
-				points += (comboCounter - 1) * 50 * level;
-
-				// Play sound
-				Constants.sounds.get("clear").play();
-			} else {
-				// Reset combo counter
-				comboCounter = 0;
-			}
-
-			// Reward T-spins
-			if (tSpin) {
-				switch (lines) {
-					case 0:
-						points += (tSpinKick ? 100 : 0) * level;
-						break;
-					case 1:
-						points += (tSpinKick ? 200 : 100) * level;
-						break;
-					case 2:
-						points += (tSpinKick ? 1200 : 300) * level;
-						break;
-					case 3:
-						points += (tSpinKick ? 1600 : 500) * level;
-						break;
-				}
-			}
-
-			// Add points to score
-			score += points;
-
-			// Level up
-			linesCleared += lines;
-
-			int threshold = levelThreshold();
-
-			while (linesCleared >= threshold) {
-				level++;
-				linesCleared -= threshold;
-
-				threshold = levelThreshold(); // Update threshold
-			}
-		}
-
-		// Spawn next tetrimino
-		spawn(bag.pop());
-
-		// Refill random bag if empty
-		if (bag.empty()) {
-			populateBag();
-		}
-
-		// Reset variables
-		swapped = false;
-		tSpinKick = false;
-
-		setChanged();
-	}
-
-	/**
-	 * Translate position of falling tetrimino
-	 * @param delta translation offset
-	 * @return true if translation was successful
-	 */
-	public boolean translate(Point delta) {
-		Point originalPosition = fallingTetrimino.getPosition();
-
-		fallingTetrimino.translate(delta);
-
-		if (isOutOfBounds(fallingTetrimino, false) || isOverlapping(fallingTetrimino)) {
-			fallingTetrimino.setPosition(originalPosition);
-			return false;
-		}
-
-		setChanged();
-
-		return true;
-	}
-
-	/**
 	 * Rotate falling tetrimino clockwise or counterclockwise
 	 * @param clockwise clockwise if true, counterclock wise if false
 	 * @return true if rotation was successful
@@ -411,218 +266,11 @@ public class GameModel extends Observable {
 	}
 
 	/**
-	 * Attempt to clear lines
-	 * @return amount of lines cleared
+	 * Determine if the game is running
+	 * @return true if the game is not paused nor game over
 	 */
-	public int clear() {
-		int lines = 0;
-
-		for (int j = 0; j < height; j++) {
-			// Assume full row
-			boolean full = true;
-
-			for (int i = 0; i < width; i++) {
-				if (getBlock(i, j) == null) {
-					full = false;
-					break;
-				}
-			}
-
-			// Continue to next row if not full
-			if (!full) {
-				continue;
-			}
-
-			lines++;
-
-			// Move blocks down
-			for (int k = j; k > 0; k--) {
-				for (int i = 0; i < width; i++) {
-					matrix[i][k] = matrix[i][k - 1];
-				}
-			}
-
-			// Clear top row
-			for (int i = 0; i < width; i++) {
-				matrix[i][0] = null;
-			}
-		}
-
-		if (lines > 0) {
-			setChanged();
-		}
-
-		return lines;
-	}
-
-	/**
-	 * Calculates the amount of lines cleared required to level up
-	 * @return lines cleared required for level up
-	 */
-	public int levelThreshold() {
-		return (int) (10 + 5 * Math.log(level));
-	}
-
-	/**
-	 * Spawn a tetrimino a the top of the matrix in its initial rotation
-	 * @param tetrimino the tetrimino to spawn
-	 */
-	public void spawn(Tetrimino tetrimino) {
-		Point startPosition = new Point(width / 2 - 1, 1);
-
-		tetrimino.setPosition(startPosition);
-		tetrimino.setRotation(0);
-
-		fallingTetrimino = tetrimino;
-
-		if (isOverlapping(fallingTetrimino)) {
-			gameOver = true;
-		}
-	}
-
-	/**
-	 * Drops a tetrimino until it collides with something
-	 * and returns the amount of lines it travelled in the process.
-	 * @param	tetrimino	the tetrimino to drop
-	 * @return	the amount of lines travelled in the drop.
-	 * */
-	public int drop(Tetrimino tetrimino) {
-		int lines = 0;
-
-		Point down = new Point(0, 1);
-		Point up = new Point(0, -1);
-
-		while (!isOutOfBounds(tetrimino, false) && !isOverlapping(tetrimino)) {
-			tetrimino.translate(down);
-
-			lines++;
-		}
-
-		tetrimino.translate(up);
-
-		return lines - 1;
-	}
-
-	/**
-	 * Embed a tetrimino into the matrix
-	 * @param tetrimino the tetrimino to embed
-	 */
-	public void embed(Tetrimino tetrimino) {
-		Tetrimino.Shape shape = tetrimino.getShape();
-		Point position = tetrimino.getPosition();
-		int rotation = tetrimino.getRotation();
-		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
-
-		int size = pattern.length;
-		int radius = (size - 1) / 2;
-
-		boolean potentialGameOver = true;
-
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				if (pattern[j][i] == 1) {
-					int x = position.x - radius + i;
-					int y = position.y - radius + j;
-
-					matrix[x][y] = new Block(shape);
-
-					if (y >= GameModel.SKY_HEIGHT) {
-						potentialGameOver = false;
-					}
-				}
-			}
-		}
-
-		if (potentialGameOver) {
-			gameOver = true;
-		}
-	}
-
-	/**
-	 * Calculate the sum of blocks diagonally from the center of a tetrimino.
-	 * Used to detect T-spins.
-	 * @param tetrimino
-	 * @return the corner sum
-	 */
-	public int cornerSum(Tetrimino tetrimino) {
-		int sum = 0;
-		Point position = tetrimino.getPosition();
-
-		for (int i = -1; i <= 1; i += 2) {
-			for (int j = -1; j <= 1; j += 2) {
-				int x = position.x + i;
-				int y = position.y + j;
-
-				if (x < 0 || x >= width || y < 0 || y >= height) {
-					sum++;
-				} else if (getBlock(x, y) != null) {
-					sum++;
-				}
-			}
-		}
-
-		return sum;
-	}
-
-	/**
-	 * Determine if a tetrimino is overlapping with any blocks in the matrix
-	 * @param tetrimino the tetrimino to test
-	 * @return true if the tetrimino is overlapping
-	 */
-	public boolean isOverlapping(Tetrimino tetrimino) {
-		Tetrimino.Shape shape = tetrimino.getShape();
-		Point position = tetrimino.getPosition();
-		int rotation = tetrimino.getRotation();
-		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
-
-		int size = pattern.length;
-		int radius = (size - 1) / 2;
-
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				if (pattern[j][i] == 1) {
-					int x = position.x - radius + i;
-					int y = position.y - radius + j;
-
-					if (matrix[x][y] != null)
-						return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Determine if a tetrimino is out of bounds
-	 * @param tetrimino the tetrimino to test
-	 * @param cutAtSkyline if true, consider anything above the skyline out of bounds
-	 * @return true if the tetrimino is considered out of bounds
-	 */
-	public boolean isOutOfBounds(Tetrimino tetrimino, boolean cutAtSkyline) {
-		Tetrimino.Shape shape = tetrimino.getShape();
-		Point position = tetrimino.getPosition();
-		int rotation = tetrimino.getRotation();
-		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
-
-		int size = pattern.length;
-		int radius = (size - 1) / 2;
-
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				if (pattern[j][i] == 1) {
-					int x = i + position.x - radius;
-					int y = j + position.y - radius;
-
-					if (pattern[j][i] == 1) {
-						if (x < 0 || x >= width || y < (cutAtSkyline ? SKY_HEIGHT : 0) || y >= height)
-							return true;
-					}
-				}
-			}
-		}
-
-		return false;
+	public boolean isRunning() {
+		return !(gameOver || paused);
 	}
 
 	/**
@@ -685,10 +333,362 @@ public class GameModel extends Observable {
 	}
 
 	/**
-	 * Determine if the game is running
-	 * @return true if the game is not paused nor game over
+	 * Drops a tetrimino until it collides with something
+	 * and returns the amount of lines it travelled in the process.
+	 * @param	tetrimino	the tetrimino to drop
+	 * @return	the amount of lines travelled in the drop.
+	 * */
+	public int drop(Tetrimino tetrimino) {
+		int lines = 0;
+
+		Point down = new Point(0, 1);
+		Point up = new Point(0, -1);
+
+		while (!isOutOfBounds(tetrimino, false) && !isOverlapping(tetrimino)) {
+			tetrimino.translate(down);
+
+			lines++;
+		}
+
+		tetrimino.translate(up);
+
+		return lines - 1;
+	}
+
+	/**
+	 * Populate the random bag with one of each tetrimino and shuffle
 	 */
-	public boolean isRunning() {
-		return !(gameOver || paused);
+	private void populateBag() {
+		while (!bag.empty()) {
+			bag.pop();
+		}
+
+		for (Tetrimino.Shape shape : Tetrimino.Shape.VALUES) {
+			bag.push(new Tetrimino(shape, new Point(0,0), 0));
+		}
+
+		Collections.shuffle(bag);
+	}
+
+	/**
+	 * Lock falling tetrimino in place,
+	 * award points,
+	 * and setup next tetrimino
+	 */
+	private void next() {
+		if (fallingTetrimino != null) {
+			Tetrimino.Shape shape = fallingTetrimino.getShape();
+
+			// Embed falling tetrimino into matrix
+			embed(fallingTetrimino);
+
+			// Scoring
+			int cornerSum = cornerSum(fallingTetrimino); // Must run prior to clear()
+			boolean tSpin = (shape == Tetrimino.Shape.T && cornerSum >= 3 && lastMoveRotation);
+
+			int lines = clear();
+			int points = 0;
+
+			// Award initial points
+			switch (lines) {
+				case 1:
+					points += 100 * level;
+					break;
+				case 2:
+					points += 300 * level;
+					break;
+				case 3:
+					points += 500 * level;
+					break;
+				case 4:
+					points += 800 * level;
+					difficultClear = true;
+					break;
+			};
+
+			if (lines > 0) {
+				// Recognize a clearing, kicked T-spin as a difficult clear
+				if (tSpin && tSpinKick) {
+					difficultClear = true;
+				}
+
+				// Reward back-to-back difficult clear
+				if (previousDifficultClear && difficultClear) {
+					points += points / 2 * level;
+				}
+
+				previousDifficultClear = difficultClear;
+				difficultClear = false;
+
+				// Reward combos
+				comboCounter++;
+				points += (comboCounter - 1) * 50 * level;
+
+				// Play sound
+				Constants.sounds.get("clear").play();
+			} else {
+				// Reset combo counter
+				comboCounter = 0;
+			}
+
+			// Reward T-spins
+			if (tSpin) {
+				switch (lines) {
+					case 0:
+						points += (tSpinKick ? 100 : 0) * level;
+						break;
+					case 1:
+						points += (tSpinKick ? 200 : 100) * level;
+						break;
+					case 2:
+						points += (tSpinKick ? 1200 : 300) * level;
+						break;
+					case 3:
+						points += (tSpinKick ? 1600 : 500) * level;
+						break;
+				}
+			}
+
+			// Add points to score
+			score += points;
+
+			// Level up
+			linesCleared += lines;
+
+			int threshold = levelThreshold();
+
+			while (linesCleared >= threshold) {
+				level++;
+				linesCleared -= threshold;
+
+				threshold = levelThreshold(); // Update threshold
+			}
+		}
+
+		// Spawn next tetrimino
+		spawn(bag.pop());
+
+		// Refill random bag if empty
+		if (bag.empty()) {
+			populateBag();
+		}
+
+		// Reset variables
+		swapped = false;
+		tSpinKick = false;
+
+		setChanged();
+	}
+
+	/**
+	 * Translate position of falling tetrimino
+	 * @param delta translation offset
+	 * @return true if translation was successful
+	 */
+	private boolean translate(Point delta) {
+		Point originalPosition = fallingTetrimino.getPosition();
+
+		fallingTetrimino.translate(delta);
+
+		if (isOutOfBounds(fallingTetrimino, false) || isOverlapping(fallingTetrimino)) {
+			fallingTetrimino.setPosition(originalPosition);
+			return false;
+		}
+
+		setChanged();
+
+		return true;
+	}
+
+	/**
+	 * Attempt to clear lines
+	 * @return amount of lines cleared
+	 */
+	private int clear() {
+		int lines = 0;
+
+		for (int j = 0; j < height; j++) {
+			// Assume full row
+			boolean full = true;
+
+			for (int i = 0; i < width; i++) {
+				if (getBlock(i, j) == null) {
+					full = false;
+					break;
+				}
+			}
+
+			// Continue to next row if not full
+			if (!full) {
+				continue;
+			}
+
+			lines++;
+
+			// Move blocks down
+			for (int k = j; k > 0; k--) {
+				for (int i = 0; i < width; i++) {
+					matrix[i][k] = matrix[i][k - 1];
+				}
+			}
+
+			// Clear top row
+			for (int i = 0; i < width; i++) {
+				matrix[i][0] = null;
+			}
+		}
+
+		if (lines > 0) {
+			setChanged();
+		}
+
+		return lines;
+	}
+
+	/**
+	 * Calculates the amount of lines cleared required to level up
+	 * @return lines cleared required for level up
+	 */
+	private int levelThreshold() {
+		return (int) (10 + 5 * Math.log(level));
+	}
+
+	/**
+	 * Spawn a tetrimino a the top of the matrix in its initial rotation
+	 * @param tetrimino the tetrimino to spawn
+	 */
+	private void spawn(Tetrimino tetrimino) {
+		Point startPosition = new Point(width / 2 - 1, 1);
+
+		tetrimino.setPosition(startPosition);
+		tetrimino.setRotation(0);
+
+		fallingTetrimino = tetrimino;
+
+		if (isOverlapping(fallingTetrimino)) {
+			gameOver = true;
+		}
+	}
+
+	/**
+	 * Embed a tetrimino into the matrix
+	 * @param tetrimino the tetrimino to embed
+	 */
+	private void embed(Tetrimino tetrimino) {
+		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = tetrimino.getPosition();
+		int rotation = tetrimino.getRotation();
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
+
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
+
+		boolean potentialGameOver = true;
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (pattern[j][i] == 1) {
+					int x = position.x - radius + i;
+					int y = position.y - radius + j;
+
+					matrix[x][y] = new Block(shape);
+
+					if (y >= GameModel.SKY_HEIGHT) {
+						potentialGameOver = false;
+					}
+				}
+			}
+		}
+
+		if (potentialGameOver) {
+			gameOver = true;
+		}
+	}
+
+	/**
+	 * Calculate the sum of blocks diagonally from the center of a tetrimino.
+	 * Used to detect T-spins.
+	 * @param tetrimino
+	 * @return the corner sum
+	 */
+	private int cornerSum(Tetrimino tetrimino) {
+		int sum = 0;
+		Point position = tetrimino.getPosition();
+
+		for (int i = -1; i <= 1; i += 2) {
+			for (int j = -1; j <= 1; j += 2) {
+				int x = position.x + i;
+				int y = position.y + j;
+
+				if (x < 0 || x >= width || y < 0 || y >= height) {
+					sum++;
+				} else if (getBlock(x, y) != null) {
+					sum++;
+				}
+			}
+		}
+
+		return sum;
+	}
+
+	/**
+	 * Determine if a tetrimino is overlapping with any blocks in the matrix
+	 * @param tetrimino the tetrimino to test
+	 * @return true if the tetrimino is overlapping
+	 */
+	private boolean isOverlapping(Tetrimino tetrimino) {
+		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = tetrimino.getPosition();
+		int rotation = tetrimino.getRotation();
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
+
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (pattern[j][i] == 1) {
+					int x = position.x - radius + i;
+					int y = position.y - radius + j;
+
+					if (matrix[x][y] != null)
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determine if a tetrimino is out of bounds
+	 * @param tetrimino the tetrimino to test
+	 * @param cutAtSkyline if true, consider anything above the skyline out of bounds
+	 * @return true if the tetrimino is considered out of bounds
+	 */
+	private boolean isOutOfBounds(Tetrimino tetrimino, boolean cutAtSkyline) {
+		Tetrimino.Shape shape = tetrimino.getShape();
+		Point position = tetrimino.getPosition();
+		int rotation = tetrimino.getRotation();
+		int[][] pattern = Constants.trueRotation.get(shape)[rotation];
+
+		int size = pattern.length;
+		int radius = (size - 1) / 2;
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (pattern[j][i] == 1) {
+					int x = i + position.x - radius;
+					int y = j + position.y - radius;
+
+					if (pattern[j][i] == 1) {
+						if (x < 0 || x >= width || y < (cutAtSkyline ? SKY_HEIGHT : 0) || y >= height)
+							return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }
