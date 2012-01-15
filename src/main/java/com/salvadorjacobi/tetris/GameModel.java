@@ -424,11 +424,14 @@ public class GameModel extends Observable {
 				comboCounter++;
 				points += (comboCounter - 1) * 50 * level;
 
-				// Play sound
+				// Play clear sound
 				Constants.sounds.get("clear").play();
 			} else {
 				// Reset combo counter
 				comboCounter = 0;
+
+				// Play lock sound
+				Constants.sounds.get("lock").play();
 			}
 
 			// Reward T-spins
