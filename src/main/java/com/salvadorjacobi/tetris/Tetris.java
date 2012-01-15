@@ -113,6 +113,6 @@ public class Tetris extends JPanel {
 		frame.setVisible(true);
 
 		controls.setLocationRelativeTo(frame);
-		controls.setLocation(frame.getLocation().x + frame.getWidth() + 5, frame.getLocation().y);
+		controls.setLocation(frame.getLocation().x + frame.getWidth() + 10, frame.getLocation().y);
 	}
 }
