@@ -1,6 +1,8 @@
 package com.salvadorjacobi.tetris;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -29,18 +31,19 @@ public class Tetris extends JPanel {
 		HoldView holdView = new HoldView(model);
 		ScoreView scoreView = new ScoreView(model);
 
-		JButton resetButton = new JButton("RESTART");
+		// Buttons
+		JButton resetButton = new JButton("RESET");
 		JButton pauseButton = new JButton("PAUSE");
+		resetButton.setFocusable(false);
+		pauseButton.setFocusable(false);
+		resetButton.setMaximumSize(new Dimension(model.scale * 5, model.scale * 1));
+		pauseButton.setMaximumSize(new Dimension(model.scale * 5, model.scale * 1));
+		resetButton.setMargin(new Insets(0, -5, 0, -5));
+		pauseButton.setMargin(new Insets(0, -5, 0, -5));
 
 		controller = new GameController(model, matrixView, previewView, holdView, scoreView, resetButton, pauseButton);
 
-		resetButton.setActionCommand("restart");
-		resetButton.addActionListener(controller);
-		resetButton.setFocusable(false);
-		pauseButton.setActionCommand("pause");
-		pauseButton.addActionListener(controller);
-		pauseButton.setFocusable(false);
-
+		// Setup layout
 		GroupLayout layout = new GroupLayout(this);
 		this.setLayout(layout);
 
@@ -74,6 +77,7 @@ public class Tetris extends JPanel {
 
 		this.setBackground(Color.DARK_GRAY);
 
+		// Game loop timer
 		timer = new Timer(GameModel.TICK_INTERVAL, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!model.isRunning()) return;
@@ -109,6 +113,6 @@ public class Tetris extends JPanel {
 		frame.setVisible(true);
 
 		controls.setLocationRelativeTo(frame);
-		controls.setLocation(frame.getLocation().x+frame.getWidth()+5, frame.getLocation().y);
+		controls.setLocation(frame.getLocation().x + frame.getWidth() + 5, frame.getLocation().y);
 	}
 }

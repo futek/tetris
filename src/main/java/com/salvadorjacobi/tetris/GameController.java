@@ -27,7 +27,10 @@ public class GameController implements ActionListener {
 		model.addObserver(holdView);
 		model.addObserver(scoreView);
 
-		model.notifyObservers();
+		resetButton.addActionListener(this);
+		pauseButton.addActionListener(this);
+		resetButton.setActionCommand("reset");
+		pauseButton.setActionCommand("pause");
 
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
 		matrixView.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
@@ -135,6 +138,8 @@ public class GameController implements ActionListener {
 				model.notifyObservers();
 			}
 		});
+
+		model.notifyObservers();
 	}
 
 	public void playList() {
@@ -142,7 +147,7 @@ public class GameController implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if ("restart".equals(e.getActionCommand())) {
+		if ("reset".equals(e.getActionCommand())) {
 			model.reset();
 
 			pauseButton.setText("PAUSE");
